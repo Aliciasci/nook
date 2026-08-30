@@ -1,0 +1,75 @@
+/* Lavender — the original Nook look. Light is the app's baseline; dark keeps
+   the same lavender identity, rebalanced for a dark surface. */
+
+[data-theme='lavender'] {
+  --color-paper: #fbf9f6;
+  --color-surface: #ffffff;
+  --color-ink: #2b2733;
+  --color-ink-soft: #635d6c;
+  --color-ink-faint: #9691a0;
+  --color-line: #ece7f0;
+
+  --color-lavender-50: #f5f2ff;
+  --color-lavender-100: #ede6ff;
+  --color-lavender-200: #ded6ff;
+  --color-lavender-300: #c7b8ff;
+  --color-lavender-400: #ab93fb;
+  --color-lavender-500: #8f6cf2;
+  --color-lavender-600: #7550d6;
+  --color-lavender-700: #5e3fae;
+
+  --color-folder-blue: #dbe8ff;
+  --color-folder-blue-ink: #4d6ba6;
+  --color-folder-green: #dcf3e3;
+  --color-folder-green-ink: #43876a;
+  --color-folder-pink: #fbe3ec;
+  --color-folder-pink-ink: #b15d80;
+  --color-folder-beige: #f6ead9;
+  --color-folder-beige-ink: #9a7448;
+  --color-folder-lavender: #ece3ff;
+  --color-folder-lavender-ink: #6d55b8;
+  --color-folder-peach: #ffe6db;
+  --color-folder-peach-ink: #b6683f;
+
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+
+  --shadow-soft: 0 1px 2px rgba(43, 39, 51, 0.04), 0 8px 24px -12px rgba(43, 39, 51, 0.1);
+  --shadow-soft-lg: 0 4px 8px rgba(43, 39, 51, 0.04), 0 24px 48px -20px rgba(43, 39, 51, 0.16);
+  --shadow-folder: 0 2px 4px rgba(93, 76, 143, 0.06), 0 14px 28px -14px rgba(93, 76, 143, 0.22);
+}
+
+[data-theme='lavender'][data-mode='dark'] {
+  --color-paper: #151220;
+  --color-surface: #1e1a2c;
+  --color-ink: #ece8f7;
+  --color-ink-soft: #a99fc4;
+  --color-ink-faint: #6d6389;
+  --color-line: #312a45;
+
+  --color-lavender-50: #241f38;
+  --color-lavender-100: #2c2545;
+  --color-lavender-200: #3a3159;
+  --color-lavender-300: #4e4278;
+  --color-lavender-400: #8f6cf2;
+  --color-lavender-500: #a689ff;
+  --color-lavender-600: #bfa8ff;
+  --color-lavender-700: #d9caff;
+
+  --color-folder-blue: #2b3b57;
+  --color-folder-blue-ink: #9dbee6;
+  --color-folder-green: #24402f;
+  --color-folder-green-ink: #8ecfa7;
+  --color-folder-pink: #4a2536;
+  --color-folder-pink-ink: #e8a8c3;
+  --color-folder-beige: #3a2f22;
+  --color-folder-beige-ink: #d9b98c;
+  --color-folder-lavender: #352a52;
+  --color-folder-lavender-ink: #c3aeff;
+  --color-folder-peach: #4a2c20;
+  --color-folder-peach-ink: #e8a982;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-soft-lg: 0 4px 8px rgba(0, 0, 0, 0.3), 0 24px 48px -20px rgba(0, 0, 0, 0.6);
+  --shadow-folder: 0 2px 4px rgba(0, 0, 0, 0.25), 0 14px 28px -14px rgba(0, 0, 0, 0.5);
+}

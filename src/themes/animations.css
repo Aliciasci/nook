@@ -1,0 +1,63 @@
+/* Small, theme-flavored decorative animations. Always subtle — never
+   distracting, especially inside Focus Mode. Disabled globally when the
+   user turns animations off, or when the OS asks for reduced motion. */
+
+@keyframes nook-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes nook-candle-flicker {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  25% { opacity: 0.92; filter: brightness(0.95); }
+  50% { opacity: 1; filter: brightness(1.08); }
+  75% { opacity: 0.9; filter: brightness(0.97); }
+}
+
+@keyframes nook-moon-glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes nook-pixel-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.25; }
+}
+
+@keyframes nook-leaf-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes nook-water-shimmer {
+  0%, 100% { opacity: 0.5; transform: translateX(0); }
+  50% { opacity: 0.9; transform: translateX(2px); }
+}
+
+.theme-anim-twinkle { animation: nook-twinkle 2.4s ease-in-out infinite; }
+.theme-anim-candle { animation: nook-candle-flicker 2.8s ease-in-out infinite; }
+.theme-anim-moon { animation: nook-moon-glow 4s ease-in-out infinite; }
+.theme-anim-blink { animation: nook-pixel-blink 1.1s steps(1) infinite; }
+.theme-anim-sway { animation: nook-leaf-sway 3.2s ease-in-out infinite; transform-origin: bottom center; }
+.theme-anim-shimmer { animation: nook-water-shimmer 2.6s ease-in-out infinite; }
+
+/* Global animation kill-switch: user preference or OS reduced-motion. */
+[data-animations='off'] .theme-anim-twinkle,
+[data-animations='off'] .theme-anim-candle,
+[data-animations='off'] .theme-anim-moon,
+[data-animations='off'] .theme-anim-blink,
+[data-animations='off'] .theme-anim-sway,
+[data-animations='off'] .theme-anim-shimmer {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-anim-twinkle,
+  .theme-anim-candle,
+  .theme-anim-moon,
+  .theme-anim-blink,
+  .theme-anim-sway,
+  .theme-anim-shimmer {
+    animation: none !important;
+  }
+}

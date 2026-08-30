@@ -1,0 +1,74 @@
+/* 🌿 Garden — sage, beige, cream, soft brown. Calm, organic, warm. */
+
+[data-theme='garden'] {
+  --color-paper: #f6f3ea;
+  --color-surface: #fffdf8;
+  --color-ink: #3a3327;
+  --color-ink-soft: #7a7160;
+  --color-ink-faint: #b3a890;
+  --color-line: #e6dfc9;
+
+  --color-lavender-50: #eef3ea;
+  --color-lavender-100: #dde8d4;
+  --color-lavender-200: #c3d9b1;
+  --color-lavender-300: #a3c489;
+  --color-lavender-400: #82ab66;
+  --color-lavender-500: #66914d;
+  --color-lavender-600: #4f7339;
+  --color-lavender-700: #3d5a2c;
+
+  --color-folder-blue: #dbe6e0;
+  --color-folder-blue-ink: #4a6e63;
+  --color-folder-green: #dfe8cf;
+  --color-folder-green-ink: #5a7440;
+  --color-folder-pink: #f0ddd0;
+  --color-folder-pink-ink: #a3684a;
+  --color-folder-beige: #ede3cd;
+  --color-folder-beige-ink: #9c8455;
+  --color-folder-lavender: #e3ddec;
+  --color-folder-lavender-ink: #6f5f8a;
+  --color-folder-peach: #f2ddc9;
+  --color-folder-peach-ink: #b0693a;
+
+  --radius-xl: 1.1rem;
+  --radius-2xl: 1.6rem;
+
+  --shadow-soft: 0 1px 2px rgba(90, 80, 50, 0.06), 0 8px 24px -12px rgba(90, 80, 50, 0.14);
+  --shadow-soft-lg: 0 4px 8px rgba(90, 80, 50, 0.06), 0 24px 48px -20px rgba(90, 80, 50, 0.2);
+  --shadow-folder: 0 2px 4px rgba(90, 80, 50, 0.08), 0 14px 28px -14px rgba(90, 80, 50, 0.22);
+}
+
+[data-theme='garden'][data-mode='dark'] {
+  --color-paper: #161a12;
+  --color-surface: #1f2419;
+  --color-ink: #e8ecdf;
+  --color-ink-soft: #a8b096;
+  --color-ink-faint: #69705c;
+  --color-line: #2e3526;
+
+  --color-lavender-50: #212a19;
+  --color-lavender-100: #293420;
+  --color-lavender-200: #37472a;
+  --color-lavender-300: #4a5f38;
+  --color-lavender-400: #82ab66;
+  --color-lavender-500: #8fc26e;
+  --color-lavender-600: #a8d68a;
+  --color-lavender-700: #c3e5ad;
+
+  --color-folder-blue: #1f2f2a;
+  --color-folder-blue-ink: #8fc0ae;
+  --color-folder-green: #23301a;
+  --color-folder-green-ink: #a8d68a;
+  --color-folder-pink: #33251c;
+  --color-folder-pink-ink: #e0a988;
+  --color-folder-beige: #322c1c;
+  --color-folder-beige-ink: #d6bd7f;
+  --color-folder-lavender: #29223a;
+  --color-folder-lavender-ink: #b8a3d9;
+  --color-folder-peach: #33251a;
+  --color-folder-peach-ink: #dba06a;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-soft-lg: 0 4px 8px rgba(0, 0, 0, 0.3), 0 24px 48px -20px rgba(0, 0, 0, 0.6);
+  --shadow-folder: 0 2px 4px rgba(0, 0, 0, 0.25), 0 14px 28px -14px rgba(0, 0, 0, 0.5);
+}

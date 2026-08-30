@@ -1,0 +1,127 @@
+/* Full-screen wallpaper.
+   Activated by data-app-bg="on" on <html>, driven by useBackground.ts through
+   two custom properties: --app-bg-image and --app-bg-overlay (0 → 1).
+
+   Everything here is scoped under [data-app-bg='on'], so with no wallpaper set
+   the app renders exactly as before. */
+
+[data-app-bg-kind='image'] body {
+  /* The veil is stacked *above* the photo in the same background shorthand —
+     one painted layer, no extra element and no z-index to fight with. It uses
+     the active theme's paper color, so a dark theme dims rather than washes
+     out. */
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--color-paper) calc(var(--app-bg-overlay, 0.55) * 100%), transparent),
+      color-mix(in srgb, var(--color-paper) calc(var(--app-bg-overlay, 0.55) * 100%), transparent)
+    ),
+    var(--app-bg-image);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Couleur unie, avec ou sans motif.
+
+   La couleur est peinte en `background-color`, le motif par-dessus en
+   `background-image` répété — donc une seule couche peinte, comme pour la
+   photo, sans élément ni z-index supplémentaire. Le motif est un SVG construit
+   par `utils/backgroundPatterns.ts`, avec sa couleur inscrite en clair : un
+   `data:` URI n'hérite d'aucune variable CSS, c'est `useBackground` qui lui
+   donne la teinte du thème actif.
+
+   L'opacité de 8 % est fixe : à l'échelle d'un écran entier, un motif qui se
+   lit est un motif qui dérange. */
+[data-app-bg-kind='color'] body {
+  background-color: var(--app-bg-color);
+}
+
+[data-app-bg-kind='color'] body::before {
+  /* Le motif vit dans un pseudo-élément fixe plutôt que dans le fond du corps :
+     c'est ce qui permet de l'atténuer sans toucher à la couleur sous-jacente, et
+     de le garder immobile quand la page défile.
+
+     `z-index: -1` le place derrière le contenu mais devant le fond du corps —
+     le corps ne crée pas de contexte d'empilement, et `.app-shell` est
+     transparent sous `data-app-bg`, donc le motif se voit. */
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--app-bg-pattern, none);
+  background-size: var(--app-bg-pattern-size, auto);
+  background-repeat: repeat;
+  opacity: 0.08;
+}
+
+/* The app shell paints --color-paper over the whole viewport; let the body
+   through instead. */
+[data-app-bg='on'] .app-shell {
+  background-color: transparent;
+}
+
+/* Cartes, fenêtres modales, sidebar, panneau « Ma journée » et arborescence de
+   la doc : tout ce qui porte du contenu est complètement opaque. Le fond
+   d'écran ne se voit que dans les espaces laissés libres autour, jamais au
+   travers du texte. Cibler les classes utilitaires garde tout ça dans un seul
+   fichier plutôt qu'une classe conditionnelle dans 38 composants. */
+[data-app-bg='on'] .bg-white,
+[data-app-bg='on'] .bg-surface,
+[data-app-bg='on'] .bg-surface\/70 {
+  background-color: var(--color-surface);
+}
+
+/* Feuille de page : sous un fond d'écran, tout le contenu d'une vue (titre,
+   boutons du haut, intitulés de section compris) repose sur une surface, et
+   pas seulement ses cartes. La feuille prend la couleur *papier* — celle du
+   fond de l'app sans image — donc les cartes blanches qu'elle contient gardent
+   exactement le contraste qu'elles ont d'habitude, sans rien restyler.
+
+   Rien ici hors fond d'écran : une page sans image reste identique. */
+[data-app-bg='on'] .page-sheet {
+  background-color: var(--color-paper);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-soft), 0 0 0 1px rgb(43 39 51 / 0.05);
+  /* Gouttière latérale sans toucher aux marges : la vue centre déjà la
+     feuille avec `mx-auto`, et poser des marges gauche/droite explicites
+     casserait ce centrage sur les pages étroites. Réduire la largeur laisse
+     le `max-width` de la vue décider, et `auto` continue de centrer. */
+  width: calc(100% - 2.5rem);
+  margin-top: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Form controls use bg-paper, which sits a shade darker than the cards they
+   live in; over a photo that reads as murky. Lift them onto the surface color
+   instead. Scoped to actual controls on purpose — .bg-paper is also worn by
+   full-screen wrappers (AuthCard) and panel bodies (ThemePickerModal), and
+   restyling those would double up the veil. */
+[data-app-bg='on'] input.bg-paper,
+[data-app-bg='on'] textarea.bg-paper,
+[data-app-bg='on'] select.bg-paper {
+  background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
+}
+
+/* Text sitting directly on the wallpaper — page headings and their lead
+   paragraph — has no surface behind it, so its legibility depends entirely on
+   the photo. There is no reliable way to guess: the same image can be dark
+   where the title sits and bright elsewhere. So the choice is the user's,
+   made in Settings → Image de fond.
+   'dark' is the default and needs no rule: the theme's own ink already applies.
+
+   Scope is h1/h2 — page-level headings — and the :not() chain keeps the rule
+   off anything that carries its own background : la feuille de page
+   (.page-sheet), les cartes (.bg-white, .bg-surface) et les cartes pastel de
+   dossier, dont les titres h3 tirent leur encre de la palette du dossier et
+   devenaient illisibles quand cette règle les écrasait. */
+[data-app-bg-text='light'] main :is(h1, h2):not(.page-sheet *):not(.bg-white *):not(.bg-surface *):not([class*='bg-folder'] *),
+[data-app-bg-text='light'] main :is(h1, h2):not(.page-sheet *):not(.bg-white *):not(.bg-surface *):not([class*='bg-folder'] *) + p {
+  color: #ffffff;
+}
+
+/* Keep the lead paragraph a step down from its heading, as it is on paper. */
+[data-app-bg-text='light'] main :is(h1, h2):not(.page-sheet *):not(.bg-white *):not(.bg-surface *):not([class*='bg-folder'] *) + p {
+  color: rgb(255 255 255 / 0.82);
+}

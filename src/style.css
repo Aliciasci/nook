@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+
+  /* Neutral / surface */
+  --color-paper: #fbf9f6;
+  --color-surface: #ffffff;
+  --color-ink: #2b2733;
+  --color-ink-soft: #635d6c;
+  --color-ink-faint: #9691a0;
+  --color-line: #ece7f0;
+
+  /* Brand */
+  --color-lavender-50: #f5f2ff;
+  --color-lavender-100: #ede6ff;
+  --color-lavender-200: #ded6ff;
+  --color-lavender-300: #c7b8ff;
+  --color-lavender-400: #ab93fb;
+  --color-lavender-500: #8f6cf2;
+  --color-lavender-600: #7550d6;
+  --color-lavender-700: #5e3fae;
+
+  /* Folder pastel palette */
+  --color-folder-blue: #dbe8ff;
+  --color-folder-blue-ink: #4d6ba6;
+  --color-folder-green: #dcf3e3;
+  --color-folder-green-ink: #43876a;
+  --color-folder-pink: #fbe3ec;
+  --color-folder-pink-ink: #b15d80;
+  --color-folder-beige: #f6ead9;
+  --color-folder-beige-ink: #9a7448;
+  --color-folder-lavender: #ece3ff;
+  --color-folder-lavender-ink: #6d55b8;
+  --color-folder-peach: #ffe6db;
+  --color-folder-peach-ink: #b6683f;
+
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+
+  --shadow-soft: 0 1px 2px rgba(43, 39, 51, 0.04), 0 8px 24px -12px rgba(43, 39, 51, 0.10);
+  --shadow-soft-lg: 0 4px 8px rgba(43, 39, 51, 0.04), 0 24px 48px -20px rgba(43, 39, 51, 0.16);
+  --shadow-folder: 0 2px 4px rgba(93, 76, 143, 0.06), 0 14px 28px -14px rgba(93, 76, 143, 0.22);
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-lavender-200) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-lavender-200);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Checkbox check-mark draw animation */
+.check-path {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  transition: stroke-dashoffset 0.25s ease;
+}
+.check-checked .check-path {
+  stroke-dashoffset: 0;
+}
+
+/* Shared page-level transition */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+/* Réordonnancement dans un `TransitionGroup` — une ligne cochée qui descend
+   sous les autres, un toast qui remonte quand celui du dessus s'en va. */
+.fade-slide-move {
+  transition: transform 0.22s ease;
+}
+
+.pop-enter-active {
+  transition: opacity 0.16s ease, transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pop-leave-active {
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: scale(0.97) translateY(2px);
+}

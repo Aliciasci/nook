@@ -1,0 +1,17 @@
+/* Nook theme system — each file below only defines CSS custom properties
+   scoped to [data-theme="…"] (and [data-theme][data-mode="dark"]). Every
+   existing component already reads these variables through Tailwind
+   utilities (bg-paper, text-ink, bg-lavender-500, bg-folder-blue, …), so
+   adding a theme here re-skins the whole app with zero component changes.
+
+   To add a new theme: create themes/<id>.css following the same shape,
+   import it below, and register it in src/composables/useTheme.ts. */
+
+@import './lavender.css';
+@import './soft-pink.css';
+@import './gothic.css';
+@import './pixel.css';
+@import './garden.css';
+@import './animations.css';
+@import './background.css';
+@import './docs.css';

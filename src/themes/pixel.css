@@ -1,0 +1,77 @@
+/* 🎮 Pixel — retro handheld console. Saturated accents, blockier corners,
+   hard offset "sprite" shadows instead of soft blur. Readability first. */
+
+[data-theme='pixel'] {
+  --font-display: 'Press Start 2P', ui-monospace, monospace;
+
+  --color-paper: #eef1f7;
+  --color-surface: #ffffff;
+  --color-ink: #1b1f3b;
+  --color-ink-soft: #4d5480;
+  --color-ink-faint: #9aa0c8;
+  --color-line: #c7cdf0;
+
+  --color-lavender-50: #eee6ff;
+  --color-lavender-100: #dccbff;
+  --color-lavender-200: #c2a3ff;
+  --color-lavender-300: #a374ff;
+  --color-lavender-400: #8c5cf5;
+  --color-lavender-500: #7c3aed;
+  --color-lavender-600: #6021c9;
+  --color-lavender-700: #4a1699;
+
+  --color-folder-blue: #bfe0ff;
+  --color-folder-blue-ink: #1d5fa8;
+  --color-folder-green: #c8f5c0;
+  --color-folder-green-ink: #1f7a35;
+  --color-folder-pink: #ffc7e3;
+  --color-folder-pink-ink: #a81f66;
+  --color-folder-beige: #fff2b0;
+  --color-folder-beige-ink: #a87c0a;
+  --color-folder-lavender: #ded0ff;
+  --color-folder-lavender-ink: #5a2fb8;
+  --color-folder-peach: #ffd2ad;
+  --color-folder-peach-ink: #c25a10;
+
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+
+  --shadow-soft: 3px 3px 0 rgba(27, 31, 59, 0.15);
+  --shadow-soft-lg: 4px 4px 0 rgba(27, 31, 59, 0.22);
+  --shadow-folder: 3px 3px 0 rgba(27, 31, 59, 0.2);
+}
+
+[data-theme='pixel'][data-mode='dark'] {
+  --color-paper: #0f1224;
+  --color-surface: #181c38;
+  --color-ink: #e4e7ff;
+  --color-ink-soft: #9aa0d9;
+  --color-ink-faint: #5f6499;
+  --color-line: #2b2f57;
+
+  --color-lavender-50: #221a4a;
+  --color-lavender-100: #2c2260;
+  --color-lavender-200: #3d2f80;
+  --color-lavender-300: #5540ad;
+  --color-lavender-400: #8c5cf5;
+  --color-lavender-500: #a582ff;
+  --color-lavender-600: #c2aeff;
+  --color-lavender-700: #ddd0ff;
+
+  --color-folder-blue: #16233f;
+  --color-folder-blue-ink: #7fb8ff;
+  --color-folder-green: #12331d;
+  --color-folder-green-ink: #7fe08f;
+  --color-folder-pink: #3a1530;
+  --color-folder-pink-ink: #ff8fc4;
+  --color-folder-beige: #332c10;
+  --color-folder-beige-ink: #e8c94a;
+  --color-folder-lavender: #241a45;
+  --color-folder-lavender-ink: #b79bff;
+  --color-folder-peach: #38200f;
+  --color-folder-peach-ink: #ff9d5c;
+
+  --shadow-soft: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  --shadow-soft-lg: 4px 4px 0 rgba(0, 0, 0, 0.6);
+  --shadow-folder: 3px 3px 0 rgba(0, 0, 0, 0.55);
+}

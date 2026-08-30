@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npx vue-tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -sv http://127.0.0.1:5173/)",
+      "Bash(find / -maxdepth 6 -iname \"*chromium-cli*\")",
+      "Bash(npm ls *)",
+      "Read(//root/.cache/ms-playwright/**)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(find / -maxdepth 5 -iname \"playwright\" -type d)",
+      "Bash(node *)",
+      "Bash(lsof -ti:5173 -sTCP:LISTEN)",
+      "Bash(xargs -r kill)",
+      "Bash(disown)",
+      "Bash(timeout 30 bash -c 'until curl -sf http://127.0.0.1:5173/ >/dev/null; do sleep 1; done')",
+      "Bash(npm uninstall *)",
+      "Bash(curl *)",
+      "Bash(VITE_SPOTIFY_CLIENT_ID=test_env_client_id_xyz nohup npm run dev -- --port 5173 --strictPort)",
+      "Bash(python3 -)"
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+/* 🌙 Gothic — charcoal, bordeaux, deep violet, silver. Elegant and moody,
+   never Halloween-kitsch. Dark is the signature mode; light is a "twilight"
+   parchment variant that keeps the same dramatic accent family. */
+
+[data-theme='gothic'] {
+  --color-paper: #efe6ea;
+  --color-surface: #f8f2f4;
+  --color-ink: #2b1a24;
+  --color-ink-soft: #5c3f4d;
+  --color-ink-faint: #8f7280;
+  --color-line: #ddc9d1;
+
+  --color-lavender-50: #f6e6ee;
+  --color-lavender-100: #ecd0de;
+  --color-lavender-200: #d9a8bf;
+  --color-lavender-300: #c17d9e;
+  --color-lavender-400: #9b3d6b;
+  --color-lavender-500: #7c2f56;
+  --color-lavender-600: #5e2342;
+  --color-lavender-700: #451934;
+
+  --color-folder-blue: #d8d3ea;
+  --color-folder-blue-ink: #41396b;
+  --color-folder-green: #d6dfc9;
+  --color-folder-green-ink: #4a5c2e;
+  --color-folder-pink: #e8ccd6;
+  --color-folder-pink-ink: #7a3550;
+  --color-folder-beige: #e6dccb;
+  --color-folder-beige-ink: #6b5636;
+  --color-folder-lavender: #ded0ea;
+  --color-folder-lavender-ink: #4a3670;
+  --color-folder-peach: #ecd4c4;
+  --color-folder-peach-ink: #7a4526;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.4rem;
+
+  --shadow-soft: 0 1px 2px rgba(60, 20, 40, 0.08), 0 8px 24px -12px rgba(60, 20, 40, 0.18);
+  --shadow-soft-lg: 0 4px 8px rgba(60, 20, 40, 0.08), 0 24px 48px -20px rgba(60, 20, 40, 0.26);
+  --shadow-folder: 0 2px 4px rgba(60, 20, 40, 0.1), 0 14px 28px -14px rgba(60, 20, 40, 0.3);
+}
+
+[data-theme='gothic'][data-mode='dark'] {
+  --color-paper: #120d15;
+  --color-surface: #1c1420;
+  --color-ink: #ece3ec;
+  --color-ink-soft: #a88fa8;
+  --color-ink-faint: #6b5870;
+  --color-line: #2e2233;
+
+  --color-lavender-50: #26141e;
+  --color-lavender-100: #331a29;
+  --color-lavender-200: #4a2138;
+  --color-lavender-300: #672a4c;
+  --color-lavender-400: #8c3760;
+  --color-lavender-500: #b0447a;
+  --color-lavender-600: #c95d90;
+  --color-lavender-700: #e08bb0;
+
+  --color-folder-blue: #1f2440;
+  --color-folder-blue-ink: #8b9ee0;
+  --color-folder-green: #1c2a1e;
+  --color-folder-green-ink: #7fb894;
+  --color-folder-pink: #35202c;
+  --color-folder-pink-ink: #d98cae;
+  --color-folder-beige: #2f2818;
+  --color-folder-beige-ink: #c9a468;
+  --color-folder-lavender: #291f3d;
+  --color-folder-lavender-ink: #b596e8;
+  --color-folder-peach: #331f16;
+  --color-folder-peach-ink: #d99468;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-soft-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 24px 48px -20px rgba(0, 0, 0, 0.7);
+  --shadow-folder: 0 2px 4px rgba(0, 0, 0, 0.35), 0 14px 28px -14px rgba(0, 0, 0, 0.6);
+}

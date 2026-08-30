@@ -1,0 +1,74 @@
+/* 🌸 Soft Pink — powder pink, cream, warm white. Cozy, light, never childish. */
+
+[data-theme='soft-pink'] {
+  --color-paper: #fdf6f6;
+  --color-surface: #ffffff;
+  --color-ink: #4a3540;
+  --color-ink-soft: #8a6d78;
+  --color-ink-faint: #c4a8b3;
+  --color-line: #f5e3e8;
+
+  --color-lavender-50: #fff0f5;
+  --color-lavender-100: #ffe1ec;
+  --color-lavender-200: #ffc9dc;
+  --color-lavender-300: #ffa8c5;
+  --color-lavender-400: #fb7dab;
+  --color-lavender-500: #f0538e;
+  --color-lavender-600: #d43873;
+  --color-lavender-700: #a82a5c;
+
+  --color-folder-blue: #e3ecff;
+  --color-folder-blue-ink: #5a6fa8;
+  --color-folder-green: #e6f5e6;
+  --color-folder-green-ink: #5f9169;
+  --color-folder-pink: #ffe3ee;
+  --color-folder-pink-ink: #c65683;
+  --color-folder-beige: #fbeee0;
+  --color-folder-beige-ink: #a97e52;
+  --color-folder-lavender: #f0e6ff;
+  --color-folder-lavender-ink: #8467c9;
+  --color-folder-peach: #ffe9dd;
+  --color-folder-peach-ink: #c07048;
+
+  --radius-xl: 1.35rem;
+  --radius-2xl: 1.85rem;
+
+  --shadow-soft: 0 1px 2px rgba(219, 112, 147, 0.06), 0 8px 24px -12px rgba(219, 112, 147, 0.14);
+  --shadow-soft-lg: 0 4px 8px rgba(219, 112, 147, 0.06), 0 24px 48px -20px rgba(219, 112, 147, 0.2);
+  --shadow-folder: 0 2px 4px rgba(219, 112, 147, 0.08), 0 14px 28px -14px rgba(219, 112, 147, 0.24);
+}
+
+[data-theme='soft-pink'][data-mode='dark'] {
+  --color-paper: #1f1418;
+  --color-surface: #2a1b21;
+  --color-ink: #f5e5ea;
+  --color-ink-soft: #c79aa9;
+  --color-ink-faint: #8a6270;
+  --color-line: #3d2830;
+
+  --color-lavender-50: #331f28;
+  --color-lavender-100: #402530;
+  --color-lavender-200: #582f3f;
+  --color-lavender-300: #7a3a56;
+  --color-lavender-400: #e0709e;
+  --color-lavender-500: #f0538e;
+  --color-lavender-600: #ff8bb3;
+  --color-lavender-700: #ffb3cf;
+
+  --color-folder-blue: #2a3350;
+  --color-folder-blue-ink: #a8bdf5;
+  --color-folder-green: #23331f;
+  --color-folder-green-ink: #a3d9ab;
+  --color-folder-pink: #3f2430;
+  --color-folder-pink-ink: #f0a8c6;
+  --color-folder-beige: #362a1e;
+  --color-folder-beige-ink: #ddb98a;
+  --color-folder-lavender: #2e2440;
+  --color-folder-lavender-ink: #c9adf5;
+  --color-folder-peach: #3a2419;
+  --color-folder-peach-ink: #f0a37e;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-soft-lg: 0 4px 8px rgba(0, 0, 0, 0.3), 0 24px 48px -20px rgba(0, 0, 0, 0.6);
+  --shadow-folder: 0 2px 4px rgba(0, 0, 0, 0.25), 0 14px 28px -14px rgba(0, 0, 0, 0.5);
+}
