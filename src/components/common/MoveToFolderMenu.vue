@@ -6,11 +6,14 @@ import IconMoreHorizontal from '@/icons/IconMoreHorizontal.vue'
 import IconArrowRight from '@/icons/IconArrowRight.vue'
 import IconTrash from '@/icons/IconTrash.vue'
 import IconPencil from '@/icons/IconPencil.vue'
+import IconArchiveBox from '@/icons/IconArchiveBox.vue'
 
-const props = defineProps<{ itemId: string; folderId: string | null }>()
+const props = withDefaults(defineProps<{ itemId: string; folderId: string | null; archived?: boolean }>(), {
+  archived: false,
+})
 const emit = defineEmits<{ edit: [] }>()
 
-const { folders, moveItemToFolder, removeItem } = useStore()
+const { folders, moveItemToFolder, archiveItem, unarchiveItem, removeItem } = useStore()
 const isOpen = ref(false)
 const root = ref<HTMLElement>()
 
@@ -21,6 +24,12 @@ function edit() {
 
 function move(id: string | null) {
   moveItemToFolder(props.itemId, id)
+  isOpen.value = false
+}
+
+function toggleArchive() {
+  if (props.archived) unarchiveItem(props.itemId)
+  else archiveItem(props.itemId)
   isOpen.value = false
 }
 
@@ -82,6 +91,17 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
         >
           <span class="h-2 w-2 rounded-full" :class="useFolderColor(f.color).bg" />
           {{ f.name }}
+        </button>
+
+        <div class="my-1 h-px bg-line" />
+
+        <button
+          type="button"
+          class="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[13px] text-ink-soft hover:bg-lavender-50 cursor-pointer"
+          @click.stop="toggleArchive"
+        >
+          <IconArchiveBox class="h-3.5 w-3.5 text-ink-faint" />
+          {{ archived ? 'Désarchiver' : 'Archiver' }}
         </button>
 
         <div class="my-1 h-px bg-line" />

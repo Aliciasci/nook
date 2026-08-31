@@ -11,7 +11,10 @@ import IconHome from '@/icons/IconHome.vue'
 import IconInbox from '@/icons/IconInbox.vue'
 import IconSun from '@/icons/IconSun.vue'
 import IconListCheck from '@/icons/IconListCheck.vue'
+import IconKanban from '@/icons/IconKanban.vue'
+import IconVisionBoard from '@/icons/IconVisionBoard.vue'
 import IconArchive from '@/icons/IconArchive.vue'
+import IconArchiveBox from '@/icons/IconArchiveBox.vue'
 import IconFolderPlus from '@/icons/IconFolderPlus.vue'
 import IconSettings from '@/icons/IconSettings.vue'
 import IconSprout from '@/icons/IconSprout.vue'
@@ -84,7 +87,9 @@ const navSections: NavSection[] = [
     items: [
       { to: '/inbox', label: 'Inbox', icon: IconInbox, countKey: 'inbox' },
       { to: '/todo', label: 'À faire', icon: IconListCheck, countKey: 'todo' },
+      { to: '/kanban', label: 'Kanban', icon: IconKanban },
       { to: '/done', label: 'Terminées', icon: IconArchive },
+      { to: '/archive', label: 'Archive', icon: IconArchiveBox },
     ],
   },
   {
@@ -92,6 +97,7 @@ const navSections: NavSection[] = [
     items: [
       { to: '/docs', label: 'Documentation', icon: IconBook },
       { to: '/mon-espace', label: 'Mon espace', icon: IconSprout },
+      { to: '/vision-board', label: 'Vision board', icon: IconVisionBoard },
       { to: '/rapport', label: 'Rapport', icon: IconReport },
     ],
   },

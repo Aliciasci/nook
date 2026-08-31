@@ -197,7 +197,7 @@ const createdInfo = computed(() => {
         <IconTarget class="h-4 w-4" />
       </button>
 
-      <MoveToFolderMenu :item-id="item.id" :folder-id="item.folderId" @edit="openEditItem(item)" />
+      <MoveToFolderMenu :item-id="item.id" :folder-id="item.folderId" :archived="item.archivedAt !== null" @edit="openEditItem(item)" />
     </template>
   </div>
 </template>

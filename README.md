@@ -20,7 +20,9 @@ npm run dev
 
 Sans les deux variables Supabase, l'app se lance mais affiche un avertissement en console : l'authentification et la persistance sont désactivées.
 
-Il faut aussi appliquer les migrations sur ton projet Supabase — dashboard → SQL Editor, coller `supabase/migrations/0001_init.sql`, `0002_background_storage.sql`, `0003_doc_pages.sql`, `0004_doc_page_font.sql`, `0005_doc_page_videos.sql`, `0006_folder_position.sql`, `0007_item_links.sql`, `0008_nooks.sql`, `0009_time_blocks.sql` puis `0010_time_block_kind.sql` (ou `supabase db push` si le CLI est lié). Tous les fichiers sont rejouables sans erreur, et dans cet ordre — `0008` reprend l'existant et le rattache à un premier nook.
+Il faut aussi appliquer les migrations sur ton projet Supabase — dashboard → SQL Editor, coller `supabase/migrations/0001_init.sql`, `0002_background_storage.sql`, `0003_doc_pages.sql`, `0004_doc_page_font.sql`, `0005_doc_page_videos.sql`, `0006_folder_position.sql`, `0007_item_links.sql`, `0008_nooks.sql`, `0009_time_blocks.sql`, `0010_time_block_kind.sql`, `0011_vision_boards.sql`, `0012_vision_board_sections.sql` puis `0013_items_archive.sql` (ou `supabase db push` si le CLI est lié). Tous les fichiers sont rejouables sans erreur, et dans cet ordre — `0008` reprend l'existant et le rattache à un premier nook.
+
+Le Vision board sait aussi extraire l'image d'un lien de pin Pinterest (et pas seulement d'un lien d'image direct), via la fonction Edge `supabase/functions/extract-pin-image` — à déployer à part : `supabase functions deploy extract-pin-image`, ou coller son code dans dashboard → Edge Functions → New function. Facultative : sans elle, coller un lien de pin affiche juste un message d'erreur clair, le reste de l'app n'en dépend pas.
 
 Une fois inscrit, un trigger Postgres provisionne automatiquement un premier nook, le profil, les préférences, la progression du jardin et quatre dossiers de départ. En dev uniquement, Paramètres propose « Charger les données de démo » pour remplir le nook ouvert avec le jeu de données de `src/data/seed.ts`.
 

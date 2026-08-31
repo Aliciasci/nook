@@ -129,10 +129,18 @@ export function useStore() {
     return itemById.value.get(id)
   }
 
+  /**
+   * Les items des vues actives — tout, sauf ce qui est archivé. Un lien ou un
+   * bloc de planning qui vise un item archivé continue de le résoudre via
+   * `getItem`/`itemById` : seules les listes de travail (Inbox, À faire,
+   * Terminées, dossiers…) filtrent dessus.
+   */
+  const activeItems = computed(() => state.items.filter((it) => !it.archivedAt))
+
   function folderStats(folderId: string) {
     let tasks = 0
     let notes = 0
-    for (const it of state.items) {
+    for (const it of activeItems.value) {
       if (it.folderId !== folderId) continue
       if (it.type === 'task') tasks++
       else notes++
@@ -141,30 +149,30 @@ export function useStore() {
   }
 
   function folderTasks(folderId: string, status?: ItemStatus) {
-    return state.items.filter(
+    return activeItems.value.filter(
       (it) => it.folderId === folderId && it.type === 'task' && (status === undefined || it.status === status),
     )
   }
 
   function folderNotes(folderId: string) {
-    return state.items.filter((it) => it.folderId === folderId && it.type === 'note')
+    return activeItems.value.filter((it) => it.folderId === folderId && it.type === 'note')
   }
 
   const inboxItems = computed(() =>
-    state.items
+    activeItems.value
       .filter((it) => it.folderId === null && it.type === 'task' && it.status !== 'done')
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   )
 
   const quickNotes = computed(() =>
-    state.items
+    activeItems.value
       .filter((it) => it.folderId === null && it.type === 'note')
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   )
 
   const todayTasks = computed(() => {
     const today = todayISO()
-    const all = state.items.filter((it) => it.type === 'task' && it.status !== 'done' && it.dueDate === today)
+    const all = activeItems.value.filter((it) => it.type === 'task' && it.status !== 'done' && it.dueDate === today)
     return {
       priority: all.filter((it) => it.priority === 'high'),
       regular: all.filter((it) => it.priority !== 'high'),
@@ -172,14 +180,14 @@ export function useStore() {
     }
   })
 
-  const allOpenTasks = computed(() => state.items.filter((it) => it.type === 'task' && it.status !== 'done'))
+  const allOpenTasks = computed(() => activeItems.value.filter((it) => it.type === 'task' && it.status !== 'done'))
 
   /**
    * Les tâches dues un jour donné, rangées comme `todayTasks` — le planning
    * regarde d'autres jours qu'aujourd'hui.
    */
   function tasksDueOn(day: string) {
-    const all = state.items.filter((it) => it.type === 'task' && it.status !== 'done' && it.dueDate === day)
+    const all = activeItems.value.filter((it) => it.type === 'task' && it.status !== 'done' && it.dueDate === day)
     return {
       priority: all.filter((it) => it.priority === 'high'),
       regular: all.filter((it) => it.priority !== 'high'),
@@ -188,9 +196,14 @@ export function useStore() {
   }
 
   const doneTasks = computed(() =>
-    state.items
+    activeItems.value
       .filter((it) => it.type === 'task' && it.status === 'done')
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+  )
+
+  /** Tâches et notes archivées, la plus récemment mise de côté d'abord. */
+  const archivedItems = computed(() =>
+    state.items.filter((it) => it.archivedAt).sort((a, b) => (b.archivedAt as string).localeCompare(a.archivedAt as string)),
   )
 
   function addTask(input: {
@@ -211,6 +224,7 @@ export function useStore() {
       status: input.status ?? 'todo',
       priority: input.priority ?? null,
       dueDate: input.dueDate ?? null,
+      archivedAt: null,
       createdAt: now,
       updatedAt: now,
     }
@@ -237,6 +251,7 @@ export function useStore() {
       status: 'todo',
       priority: null,
       dueDate: null,
+      archivedAt: null,
       createdAt: now,
       updatedAt: now,
     }
@@ -470,6 +485,18 @@ export function useStore() {
     updateItem(id, { folderId })
   }
 
+  /**
+   * Met de côté, sans toucher à `status` : une tâche en cours archivée le
+   * reste, elle ne devient pas « faite » pour autant.
+   */
+  function archiveItem(id: string) {
+    updateItem(id, { archivedAt: new Date().toISOString() })
+  }
+
+  function unarchiveItem(id: string) {
+    updateItem(id, { archivedAt: null })
+  }
+
   function removeItem(id: string) {
     const idx = state.items.findIndex((it) => it.id === id)
     if (idx === -1) return
@@ -508,8 +535,8 @@ export function useStore() {
     const q = query.trim().toLowerCase()
     if (!q) return { tasks: [] as Item[], notes: [] as Item[], folders: [] as Folder[] }
     return {
-      tasks: state.items.filter((it) => it.type === 'task' && it.title.toLowerCase().includes(q)),
-      notes: state.items.filter((it) => it.type === 'note' && it.title.toLowerCase().includes(q)),
+      tasks: activeItems.value.filter((it) => it.type === 'task' && it.title.toLowerCase().includes(q)),
+      notes: activeItems.value.filter((it) => it.type === 'note' && it.title.toLowerCase().includes(q)),
       folders: state.folders.filter((f) => f.name.toLowerCase().includes(q)),
     }
   }
@@ -530,6 +557,7 @@ export function useStore() {
     allOpenTasks,
     tasksDueOn,
     doneTasks,
+    archivedItems,
     addTask,
     addNote,
     addLinkedNote,
@@ -544,6 +572,8 @@ export function useStore() {
     moveFolder,
     toggleTaskDone,
     moveItemToFolder,
+    archiveItem,
+    unarchiveItem,
     removeItem,
     removeFolder,
     search,
