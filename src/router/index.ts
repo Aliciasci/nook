@@ -49,8 +49,11 @@ const router = createRouter({
         { path: 'today', name: 'today', component: () => import('@/views/TodayView.vue') },
         { path: 'planning', name: 'planning', component: () => import('@/views/PlanningView.vue') },
         { path: 'todo', name: 'todo', component: () => import('@/views/TodoView.vue') },
+        { path: 'kanban', name: 'kanban', component: () => import('@/views/KanbanView.vue') },
         { path: 'done', name: 'done', component: () => import('@/views/DoneView.vue') },
+        { path: 'archive', name: 'archive', component: () => import('@/views/ArchiveView.vue') },
         { path: 'mon-espace', name: 'mon-espace', component: () => import('@/views/MonEspaceView.vue') },
+        { path: 'vision-board', name: 'vision-board', component: () => import('@/views/VisionBoardView.vue') },
         {
           path: 'docs',
           name: 'docs',

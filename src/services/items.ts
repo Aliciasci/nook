@@ -15,6 +15,7 @@ function fromRow(row: ItemRow): Item {
     status: row.status,
     priority: row.priority,
     dueDate: row.due_date,
+    archivedAt: row.archived_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -66,6 +67,7 @@ export async function updateItem(id: string, patch: Partial<Omit<Item, 'id' | 'c
   }
   if ('priority' in patch) payload.priority = patch.priority
   if ('dueDate' in patch) payload.due_date = patch.dueDate
+  if ('archivedAt' in patch) payload.archived_at = patch.archivedAt
 
   const { error } = await supabase.from('items').update(payload).eq('id', id)
   if (error) throw error

@@ -130,6 +130,7 @@ export interface Database {
           created_at: string
           updated_at: string
           completed_at: string | null
+          archived_at: string | null
         }
         Insert: {
           id?: string
@@ -145,6 +146,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
           completed_at?: string | null
+          archived_at?: string | null
         }
         Update: Partial<Database['public']['Tables']['items']['Insert']>
         Relationships: []
@@ -291,6 +293,74 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['doc_pages']['Insert']>
+        Relationships: []
+      }
+      vision_boards: {
+        Row: {
+          id: string
+          user_id: string
+          nook_id: string
+          name: string
+          position: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          nook_id: string
+          name: string
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['vision_boards']['Insert']>
+        Relationships: []
+      }
+      vision_board_items: {
+        Row: {
+          id: string
+          user_id: string
+          board_id: string
+          nook_id: string
+          kind: 'image' | 'note' | 'color' | 'link' | 'section'
+          x: number
+          y: number
+          width: number
+          height: number
+          z_index: number
+          color: string | null
+          text: string | null
+          image_url: string | null
+          image_path: string | null
+          item_id: string | null
+          item_title: string | null
+          item_type: 'task' | 'note' | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          board_id: string
+          nook_id: string
+          kind: 'image' | 'note' | 'color' | 'link' | 'section'
+          x?: number
+          y?: number
+          width?: number
+          height?: number
+          z_index?: number
+          color?: string | null
+          text?: string | null
+          image_url?: string | null
+          image_path?: string | null
+          item_id?: string | null
+          item_title?: string | null
+          item_type?: 'task' | 'note' | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['vision_board_items']['Insert']>
         Relationships: []
       }
       garden_unlocks: {

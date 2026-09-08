@@ -45,7 +45,12 @@ function onRowClick(id: string) {
         />
         <IconNote v-else class="mt-0.5 h-3.5 w-3.5 shrink-0 text-lavender-400" />
         <p class="min-w-0 flex-1 text-[13px] leading-snug text-ink-soft">{{ n.title }}</p>
-        <MoveToFolderMenu v-if="!selection.state.isSelecting" :item-id="n.id" :folder-id="n.folderId" />
+        <MoveToFolderMenu
+          v-if="!selection.state.isSelecting"
+          :item-id="n.id"
+          :folder-id="n.folderId"
+          :archived="n.archivedAt !== null"
+        />
       </div>
     </div>
   </div>

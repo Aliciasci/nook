@@ -33,6 +33,7 @@ function task(
     status: opts.status ?? 'todo',
     priority: opts.priority ?? null,
     dueDate: opts.dueDate ?? null,
+    archivedAt: null,
     createdAt,
     updatedAt: createdAt,
   }
@@ -49,6 +50,7 @@ function note(folderId: string | null, title: string, content: string | null = n
     status: 'todo',
     priority: null,
     dueDate: null,
+    archivedAt: null,
     createdAt,
     updatedAt: createdAt,
   }

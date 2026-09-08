@@ -91,6 +91,7 @@ function onLinksClick() {
         v-if="!selection.state.isSelecting"
         :item-id="item.id"
         :folder-id="item.folderId"
+        :archived="item.archivedAt !== null"
         @edit="openEditItem(item)"
       />
     </div>
