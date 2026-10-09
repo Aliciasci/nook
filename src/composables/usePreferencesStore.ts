@@ -63,6 +63,10 @@ export interface TodoEntry {
 export const TODO_MAX_ENTRIES = 100
 export const TODO_MAX_LENGTH = 200
 
+/** Même raison : un identifiant de dossier supprimé reste ici sans nuire,
+ *  mais rien ne doit pouvoir faire grossir la ligne indéfiniment. */
+export const HIDDEN_FOLDERS_MAX = 100
+
 export interface PreferencesState {
   themeId: ThemeId
   mode: ThemeMode
@@ -87,6 +91,13 @@ export interface PreferencesState {
    * dit « celle d'origine », ce qu'une valeur recopiée ne dirait pas.
    */
   activityColors: Partial<Record<TimeBlockKind, string>>
+  /**
+   * Les dossiers retirés de la grille de l'accueil. Une préférence
+   * d'affichage par nook, comme la vue du planning est une habitude de
+   * lecture : ça ne change rien au contenu du dossier, qui reste entier
+   * partout ailleurs et revient d'un geste.
+   */
+  hiddenFolders: string[]
   loaded: boolean
 }
 
@@ -120,6 +131,7 @@ export const prefsState = reactive<PreferencesState>({
   focusAmbiance: 'silence',
   todoList: [],
   activityColors: {},
+  hiddenFolders: [],
   loaded: false,
 })
 
@@ -143,6 +155,24 @@ function readTodoList(value: unknown): TodoEntry[] {
     if (entries.length === TODO_MAX_ENTRIES) break
   }
   return entries
+}
+
+/**
+ * Même prudence que pour la to-do list. Les identifiants d'un dossier
+ * supprimé depuis ne sont pas écartés ici : la liste des dossiers n'est pas
+ * chargée au moment où les préférences le sont, et un identifiant orphelin ne
+ * masque rien puisque plus aucun dossier ne le porte.
+ */
+function readHiddenFolders(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  const ids: string[] = []
+  for (const raw of value) {
+    if (typeof raw !== 'string' || !raw) continue
+    if (ids.includes(raw)) continue
+    ids.push(raw)
+    if (ids.length === HIDDEN_FOLDERS_MAX) break
+  }
+  return ids
 }
 
 const KINDS: TimeBlockKind[] = ['travail', 'focus', 'reunion', 'etude', 'sport', 'pause']
@@ -182,6 +212,7 @@ function applyRow(row: PreferencesRow) {
     background?: Partial<BackgroundConfig>
     checklist?: unknown
     activityColors?: unknown
+    collapsedFolders?: unknown
   }
   prefsState.mode = extra.mode ?? 'light'
   Object.assign(prefsState.customTheme, DEFAULT_CUSTOM, extra.customTheme ?? {})
@@ -196,6 +227,13 @@ function applyRow(row: PreferencesRow) {
     delete prefsState.activityColors[key as TimeBlockKind]
   }
   Object.assign(prefsState.activityColors, readActivityColors(extra.activityColors))
+  // En place, comme la to-do list : useHiddenFolders.ts tient une référence
+  // directe sur ce tableau.
+  prefsState.hiddenFolders.splice(
+    0,
+    prefsState.hiddenFolders.length,
+    ...readHiddenFolders(extra.collapsedFolders),
+  )
 }
 
 let loadToken = 0
@@ -227,6 +265,7 @@ export function resetPreferences() {
   prefsState.focusLastDuration = 25
   prefsState.focusAmbiance = 'silence'
   prefsState.todoList.splice(0)
+  prefsState.hiddenFolders.splice(0)
   for (const key of Object.keys(prefsState.activityColors)) {
     delete prefsState.activityColors[key as TimeBlockKind]
   }
@@ -267,6 +306,9 @@ function writePreferences(): Promise<void> {
       // déjà écrites, pour cinq caractères que personne ne lit.
       checklist: prefsState.todoList,
       activityColors: prefsState.activityColors,
+      // La clé jsonb garde son premier nom, comme `checklist` : la renommer
+      // effacerait ce qui est déjà écrit, pour un mot que personne ne lit.
+      collapsedFolders: prefsState.hiddenFolders,
     },
   }).catch(() => {
     useToast().error("Tes préférences n'ont pas pu être sauvegardées.")

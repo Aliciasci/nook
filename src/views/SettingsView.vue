@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useWorkSchedule } from '@/composables/useWorkSchedule'
 import { useSpotify } from '@/composables/useSpotify'
 import { useTheme } from '@/composables/useTheme'
 import { useUiState } from '@/composables/useUiState'
+import { useAuth } from '@/composables/useAuth'
 import { useStore } from '@/store/useStore'
 import { useToast } from '@/composables/useToast'
 import { seedDemoData } from '@/services/seed'
+import { deleteAccount } from '@/services/account'
 import PageHeader from '@/components/common/PageHeader.vue'
 import BackgroundSettings from '@/components/settings/BackgroundSettings.vue'
 import BackgroundColorSettings from '@/components/settings/BackgroundColorSettings.vue'
@@ -17,8 +20,35 @@ const { schedule } = useWorkSchedule()
 const spotify = useSpotify()
 const theme = useTheme()
 const { openThemePicker } = useUiState()
+const auth = useAuth()
+const router = useRouter()
 const store = useStore()
 const toast = useToast()
+
+/** Mot à retaper pour armer le bouton de suppression — une confirmation en
+ *  deux clics ne suffit pas pour un geste qui efface tous les nooks du compte. */
+const DELETE_CONFIRM_WORD = 'SUPPRIMER'
+const deleteOpen = ref(false)
+const deleteConfirmText = ref('')
+const deleting = ref(false)
+
+function cancelDeleteAccount() {
+  deleteOpen.value = false
+  deleteConfirmText.value = ''
+}
+
+async function confirmDeleteAccount() {
+  deleting.value = true
+  try {
+    await deleteAccount()
+    await auth.logout()
+    router.push('/login')
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : 'La suppression du compte a échoué.')
+  } finally {
+    deleting.value = false
+  }
+}
 
 const isDev = import.meta.env.DEV
 const seeding = ref(false)
@@ -227,6 +257,53 @@ async function copyRedirectUri() {
       >
         {{ seeding ? 'Chargement…' : 'Charger les données de démo' }}
       </button>
+    </section>
+
+    <section class="mt-5 rounded-2xl bg-white p-5 shadow-soft ring-1 ring-rose-200/70">
+      <h2 class="font-display text-[15px] font-medium text-rose-700">⚠️ Zone dangereuse</h2>
+      <p class="mt-1 text-[12.5px] text-ink-soft">
+        Supprime ton compte et tous tes nooks — dossiers, tâches, notes, documentation, planning et jardin compris.
+        C'est irréversible.
+      </p>
+
+      <button
+        v-if="!deleteOpen"
+        type="button"
+        class="mt-3 rounded-xl border border-rose-200 px-3.5 py-2 text-[12.5px] font-medium text-rose-600 transition-colors hover:bg-rose-50 cursor-pointer"
+        @click="deleteOpen = true"
+      >
+        Supprimer mon compte
+      </button>
+
+      <div v-else class="mt-3 rounded-xl bg-rose-50 p-3.5 ring-1 ring-rose-200">
+        <p class="text-[12.5px] leading-snug text-rose-700">
+          Cette action efface définitivement tout ce que ton compte contient, sur tous tes nooks. Pour confirmer,
+          tape <strong>{{ DELETE_CONFIRM_WORD }}</strong> ci-dessous.
+        </p>
+        <input
+          v-model="deleteConfirmText"
+          type="text"
+          :placeholder="DELETE_CONFIRM_WORD"
+          class="mt-2.5 w-full rounded-xl border border-rose-200 bg-white px-3 py-2 text-[13.5px] text-ink placeholder:text-rose-300 focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-100"
+        />
+        <div class="mt-2.5 flex justify-end gap-2">
+          <button
+            type="button"
+            class="rounded-lg px-3 py-1.5 text-[12.5px] font-medium text-ink-faint hover:bg-white cursor-pointer"
+            @click="cancelDeleteAccount"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            :disabled="deleting || deleteConfirmText !== DELETE_CONFIRM_WORD"
+            class="rounded-lg bg-rose-600 px-3 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            @click="confirmDeleteAccount"
+          >
+            {{ deleting ? 'Suppression…' : 'Supprimer définitivement mon compte' }}
+          </button>
+        </div>
+      </div>
     </section>
   </div>
 </template>

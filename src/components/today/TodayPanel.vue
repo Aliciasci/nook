@@ -2,18 +2,26 @@
 import { RouterLink } from 'vue-router'
 import { useStore } from '@/store/useStore'
 import TaskRow from '@/components/tasks/TaskRow.vue'
+import CollapsiblePanel from '@/components/common/CollapsiblePanel.vue'
 
 const { todayTasks } = useStore()
 </script>
 
 <template>
-  <div class="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-ink/[0.08]">
-    <div class="flex items-center justify-between">
-      <h2 class="font-display text-[15px] font-medium text-ink">Aujourd'hui</h2>
+  <CollapsiblePanel panel-id="today" title="Aujourd'hui">
+    <template #badge>
+      <span
+        v-if="todayTasks.count"
+        class="rounded-full bg-lavender-100 px-2 py-0.5 text-[11px] font-semibold text-lavender-700"
+      >
+        {{ todayTasks.count }}
+      </span>
+    </template>
+    <template #actions>
       <RouterLink to="/today" class="text-[12px] font-medium text-ink-faint hover:text-lavender-600">
         Voir tout
       </RouterLink>
-    </div>
+    </template>
 
     <div v-if="todayTasks.count === 0" class="py-8 text-center text-[12.5px] text-ink-faint">
       Rien de prévu pour aujourd'hui.
@@ -34,5 +42,5 @@ const { todayTasks } = useStore()
         </div>
       </div>
     </template>
-  </div>
+  </CollapsiblePanel>
 </template>

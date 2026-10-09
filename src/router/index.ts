@@ -6,6 +6,12 @@ declare module 'vue-router' {
   interface RouteMeta {
     public?: boolean
     /**
+     * Une route publique qu'un compte déjà connecté doit aussi pouvoir
+     * ouvrir, sans être renvoyé vers l'accueil — le lien de réinitialisation
+     * du mot de passe arrive avec une session (de récupération) ouverte.
+     */
+    allowWhenAuthenticated?: boolean
+    /**
      * Identité de vue pour `AppLayout` : deux routes qui la partagent ne
      * remontent pas le composant quand on passe de l'une à l'autre.
      */
@@ -31,7 +37,7 @@ const router = createRouter({
       path: '/reset-password',
       name: 'reset-password',
       component: () => import('@/views/auth/ResetPasswordView.vue'),
-      meta: { public: true },
+      meta: { public: true, allowWhenAuthenticated: true },
     },
     // Hors `AppLayout` : le choix du nook précède l'espace de travail, il n'a
     // ni sidebar ni contenu à afficher derrière lui.
@@ -84,7 +90,7 @@ router.beforeEach(async (to) => {
   }
   // Recovery links land an authenticated (recovery) session on this page on
   // purpose — never bounce it away like a normal already-logged-in visit.
-  if (isPublic && isAuthenticated.value && to.name !== 'reset-password') {
+  if (isPublic && isAuthenticated.value && !to.meta.allowWhenAuthenticated) {
     return { name: 'home' }
   }
   if (isPublic) return true

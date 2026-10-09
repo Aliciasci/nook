@@ -3,7 +3,9 @@ import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useStore } from '@/store/useStore'
 import { useUiState } from '@/composables/useUiState'
+import { useHiddenFolders } from '@/composables/useHiddenFolders'
 import FolderCard from '@/components/folders/FolderCard.vue'
+import HiddenFoldersMenu from '@/components/folders/HiddenFoldersMenu.vue'
 import InboxList from '@/components/inbox/InboxList.vue'
 import TodayPanel from '@/components/today/TodayPanel.vue'
 import QuickNotesWidget from '@/components/today/QuickNotesWidget.vue'
@@ -14,6 +16,15 @@ import IconSearch from '@/icons/IconSearch.vue'
 import IconArrowRight from '@/icons/IconArrowRight.vue'
 
 const { folders, todayTasks, inboxItems, moveFolder } = useStore()
+const { isHidden } = useHiddenFolders()
+
+/**
+ * Les dossiers effectivement dessinés. Un dossier masqué quitte la grille —
+ * il n'y devient pas une ligne fine : une grille encombrée ne se range pas en
+ * remplaçant chaque carte de trop par une ligne de trop. Il se retrouve par
+ * le bouton « masqués » de l'en-tête.
+ */
+const visibleFolders = computed(() => folders.value.filter((f) => !isHidden(f.id)))
 
 /* ------------------------------------------- Rangement des dossiers --- */
 
@@ -26,7 +37,7 @@ const dropIndex = ref<number | null>(null)
 function onFolderDragStart(index: number, e: DragEvent) {
   dragIndex.value = index
   // Firefox n'amorce pas un glisser sans données attachées.
-  e.dataTransfer?.setData('text/plain', folders.value[index]?.id ?? '')
+  e.dataTransfer?.setData('text/plain', visibleFolders.value[index]?.id ?? '')
   if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
 }
 
@@ -39,14 +50,26 @@ function onFolderDragOver(index: number, e: DragEvent) {
 
 function onFolderDrop() {
   const from = dragIndex.value
-  let to = dropIndex.value
+  const to = dropIndex.value
   dragIndex.value = null
   dropIndex.value = null
   if (from === null || to === null) return
-  // `to` compte les places avant retrait de la carte glissée.
-  if (to > from) to -= 1
-  const folder = folders.value[from]
-  if (folder) moveFolder(folder.id, to)
+
+  const dragged = visibleFolders.value[from]
+  if (!dragged) return
+  const source = folders.value.findIndex((f) => f.id === dragged.id)
+  if (source === -1) return
+
+  // Le geste compte les cartes affichées, `moveFolder` compte tous les
+  // dossiers du nook — masqués compris. La traduction passe par la carte
+  // visée : se poser « avant celle-ci », c'est prendre sa place dans la liste
+  // complète. Sans ça, masquer un dossier décalerait tous les rangements
+  // suivants d'un cran.
+  const anchor = visibleFolders.value[to]
+  let target = anchor ? folders.value.findIndex((f) => f.id === anchor.id) : folders.value.length
+  // `target` compte les places avant retrait de la carte glissée.
+  if (target > source) target -= 1
+  moveFolder(dragged.id, target)
 }
 
 function onFolderDragEnd() {
@@ -86,14 +109,17 @@ const hasMoreInbox = computed(() => inboxItems.value.length > inboxPreviewLimit)
         </div>
 
         <section class="mt-9">
-          <h2 class="px-1 font-display text-[15px] font-medium text-ink">Mes dossiers</h2>
+          <div class="flex items-center justify-between gap-3 px-1">
+            <h2 class="font-display text-[15px] font-medium text-ink">Mes dossiers</h2>
+            <HiddenFoldersMenu />
+          </div>
           <div
             class="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(230px,1fr))] gap-4"
             @dragend="onFolderDragEnd"
             @drop="onFolderDrop"
           >
             <div
-              v-for="(folder, index) in folders"
+              v-for="(folder, index) in visibleFolders"
               :key="folder.id"
               class="relative"
               :class="dragIndex === index ? 'opacity-40' : ''"

@@ -4,7 +4,6 @@ import { useStore } from '@/store/useStore'
 import { useFocusSession } from '@/composables/useFocusSession'
 import FocusRing from '@/components/focus/FocusRing.vue'
 import FocusCapture from '@/components/focus/FocusCapture.vue'
-import AmbiancePicker from '@/components/focus/AmbiancePicker.vue'
 
 const { toggleTaskDone } = useStore()
 const { state, pause, resume, finishTask, quitFocus } = useFocusSession()
@@ -79,7 +78,6 @@ function onFinish() {
 
     <div class="mt-10 flex items-center gap-3">
       <FocusCapture />
-      <AmbiancePicker />
     </div>
 
     <button

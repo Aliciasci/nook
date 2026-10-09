@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, type Component } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, onBeforeUnmount, onMounted, ref, watch, type Component } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store/useStore'
 import { useUiState } from '@/composables/useUiState'
 import { useFolderColor } from '@/composables/useFolderColor'
 import { useAuth } from '@/composables/useAuth'
 import { useProfile } from '@/composables/useProfile'
 import { usePanels } from '@/composables/usePanels'
+import { useItemLinkDrag } from '@/composables/useItemLinkDrag'
 import IconHome from '@/icons/IconHome.vue'
 import IconInbox from '@/icons/IconInbox.vue'
 import IconSun from '@/icons/IconSun.vue'
@@ -26,13 +27,51 @@ import IconPanelLeft from '@/icons/IconPanelLeft.vue'
 import NookSwitcher from '@/components/nooks/NookSwitcher.vue'
 
 const { folders, inboxItems, allOpenTasks, folderStats } = useStore()
+const itemDrag = useItemLinkDrag()
+
+/* --------------------------- Recevoir une tâche ou une note glissée --- */
+
+/**
+ * Les mêmes cibles que les cartes de l'accueil, mais présentes sur *toutes*
+ * les pages : c'est ce qui permet de ranger une tâche depuis l'Inbox ou
+ * « À faire », où aucune carte de dossier n'est affichée. Le menu liste aussi
+ * les dossiers masqués de l'accueil — masquer n'est qu'un réglage de la
+ * grille, pas une mise à l'écart du dossier.
+ */
+const dropFolderId = ref<string | null>(null)
+
+function onFolderDragOver(folderId: string, e: DragEvent) {
+  if (!itemDrag.acceptsFolder(folderId)) return
+  // C'est le `preventDefault` du survol qui déclare la cible : sans lui, le
+  // navigateur refuse le dépôt.
+  e.preventDefault()
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
+  dropFolderId.value = folderId
+}
+
+function onFolderDrop(folderId: string) {
+  dropFolderId.value = null
+  const folder = folders.value.find((f) => f.id === folderId)
+  if (folder) itemDrag.dropOnFolder(folder.id, folder.name)
+}
 const { openQuickCreate } = useUiState()
 const auth = useAuth()
 const profile = useProfile()
 const router = useRouter()
+const route = useRoute()
 const panels = usePanels()
 
-const collapsed = computed(() => panels.state.sidebar)
+// En tiroir mobile, le contenu reste toujours déplié — replier en bande
+// d'icônes n'a de sens que pour gagner de la largeur sur un grand écran,
+// pas dans un tiroir qui prend de toute façon toute la largeur voulue.
+const collapsed = computed(() => panels.state.sidebar && !panels.state.mobileSidebar)
+
+// Le tiroir mobile se referme dès qu'on navigue — sans ça, un lien suivi
+// laisserait le menu ouvert par-dessus la page qu'on vient d'atteindre.
+watch(
+  () => route.fullPath,
+  () => panels.closeMobileSidebar(),
+)
 
 const menuOpen = ref(false)
 const menuRoot = ref<HTMLElement | null>(null)
@@ -111,9 +150,22 @@ function navCount(key?: 'inbox' | 'todo') {
 </script>
 
 <template>
+  <!-- Sous `md`, le menu est un tiroir par-dessus le contenu plutôt qu'une
+       colonne à côté : sur un écran de téléphone, une colonne fixe de 256px
+       ne laisserait presque rien pour le reste. Au-dessus de `md`, ce
+       fond n'existe pas et le tiroir n'est jamais fermé. -->
+  <div
+    v-if="panels.state.mobileSidebar"
+    class="fixed inset-0 z-30 bg-ink/30 md:hidden"
+    @click="panels.closeMobileSidebar()"
+  />
+
   <aside
-    class="flex h-screen shrink-0 flex-col border-r border-line bg-surface/70 py-5 transition-[width] duration-200"
-    :class="collapsed ? 'w-[68px] px-2.5' : 'w-64 px-4'"
+    class="fixed inset-y-0 left-0 z-40 flex h-screen w-72 shrink-0 flex-col border-r border-line bg-surface py-5 transition-transform duration-200 md:static md:z-auto md:w-auto md:translate-x-0 md:bg-surface/70 md:transition-[width]"
+    :class="[
+      panels.state.mobileSidebar ? 'translate-x-0' : '-translate-x-full',
+      collapsed ? 'px-4 md:w-[68px] md:px-2.5' : 'px-4 md:w-64',
+    ]"
   >
     <div class="flex items-center gap-2" :class="collapsed ? 'justify-center' : 'px-2'">
       <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-lavender-400 shadow-soft">
@@ -195,8 +247,14 @@ function navCount(key?: 'inbox' | 'todo') {
         :to="`/folder/${folder.id}`"
         :title="collapsed ? folder.name : undefined"
         class="flex items-center gap-2.5 rounded-xl py-2 text-[13.5px] font-medium text-ink-soft transition-colors hover:bg-lavender-50 hover:text-ink"
-        :class="collapsed ? 'justify-center px-0' : 'px-3'"
+        :class="[
+          collapsed ? 'justify-center px-0' : 'px-3',
+          dropFolderId === folder.id ? '!bg-lavender-100 !text-lavender-700 ring-2 ring-lavender-400' : '',
+        ]"
         active-class="!bg-lavender-100 !text-lavender-700"
+        @dragover="onFolderDragOver(folder.id, $event)"
+        @dragleave="dropFolderId = null"
+        @drop.prevent.stop="onFolderDrop(folder.id)"
       >
         <!-- Replié, l'émoji du dossier identifie mieux qu'une pastille de
              couleur ; on garde la pastille pour les dossiers sans icône. -->

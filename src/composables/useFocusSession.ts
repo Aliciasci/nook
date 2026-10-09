@@ -1,5 +1,5 @@
 import { computed, reactive, watch } from 'vue'
-import type { FocusAmbiance, Item } from '@/types'
+import type { Item } from '@/types'
 import { useGarden } from '@/composables/useGarden'
 import { useAuth } from '@/composables/useAuth'
 import { onBeforeNookSwitch, useNooks } from '@/composables/useNooks'
@@ -447,16 +447,8 @@ export function useFocusSession() {
     addTask({ title: trimmed, folderId: null })
   }
 
-  function setAmbiance(value: FocusAmbiance) {
-    prefsState.focusAmbiance = value
-    savePreferences()
-    // Placeholder hook: wire actual ambient-audio playback here later
-    // (e.g. play(value) / stop()) — architecture only for the MVP.
-  }
-
   return {
     state,
-    ambiance: computed(() => prefsState.focusAmbiance as FocusAmbiance),
     todayFocusStats,
     openFocus,
     startSession,
@@ -466,6 +458,5 @@ export function useFocusSession() {
     quitFocus,
     continueSession,
     captureThought,
-    setAmbiance,
   }
 }

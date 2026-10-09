@@ -24,22 +24,27 @@ Il faut aussi appliquer les migrations sur ton projet Supabase — dashboard →
 
 Le Vision board sait aussi extraire l'image d'un lien de pin Pinterest (et pas seulement d'un lien d'image direct), via la fonction Edge `supabase/functions/extract-pin-image` — à déployer à part : `supabase functions deploy extract-pin-image`, ou coller son code dans dashboard → Edge Functions → New function. Facultative : sans elle, coller un lien de pin affiche juste un message d'erreur clair, le reste de l'app n'en dépend pas.
 
+La suppression de compte (Paramètres → Zone dangereuse) passe par une seconde fonction Edge, `supabase/functions/delete-account` — même déploiement que ci-dessus (`supabase functions deploy delete-account`). Elle n'est pas facultative comme la précédente : sans elle, le bouton échoue proprement (message d'erreur clair), mais un visiteur n'a alors aucun moyen de faire effacer son compte. Elle utilise la clé `service_role`, injectée automatiquement dans l'environnement de toute fonction Edge hébergée par Supabase — rien à configurer en plus.
+
 Une fois inscrit, un trigger Postgres provisionne automatiquement un premier nook, le profil, les préférences, la progression du jardin et quatre dossiers de départ. En dev uniquement, Paramètres propose « Charger les données de démo » pour remplir le nook ouvert avec le jeu de données de `src/data/seed.ts`.
 
 ## Fonctionnalités
 
 - **Nooks** — plusieurs espaces indépendants dans un même compte : un Nook pro, un Nook perso. Voir plus bas.
-- **Dossiers, tâches et notes** — un seul modèle `Item` (tâche *ou* note) rangé dans des dossiers colorés. Sur l'accueil, les dossiers se rangent par glisser-déposer ; l'ordre est enregistré (colonne `position`, migration `0006`). Chaque ligne de tâche affiche son niveau d'importance (Basse, Normale, Haute).
+- **Dossiers, tâches et notes** — un seul modèle `Item` (tâche *ou* note) rangé dans des dossiers colorés. Sur l'accueil, les dossiers se rangent par glisser-déposer ; l'ordre est enregistré (colonne `position`, migration `0006`). Sur l'accueil toujours, une tâche ou une note se **range dans un dossier en la déposant sur sa carte** — la carte s'éclaire quand le dépôt changerait quelque chose. Les dossiers du menu de gauche reçoivent le même dépôt, depuis n'importe quelle page. Un dossier de trop se **masque** (menu ⋯ → Masquer) : sa carte quitte la grille, et un bouton « n dossiers masqués » dans l'en-tête les rouvre au survol — un par un, ou tous d'un coup. C'est une préférence d'affichage, retenue par nook dans `user_preferences.extra` : rien n'est supprimé ni archivé, et le dossier reste entier partout ailleurs. Chaque ligne de tâche affiche son niveau d'importance (Basse, Normale, Haute).
 - **To-do list** — sur l'accueil, sous les notes rapides, une liste de cases à cocher pour les micro-trucs qui n'ont pas à devenir des tâches. Voir plus bas.
 - **Détail** — cliquer une tâche ou une note ouvre son détail en lecture : description, dossier, importance, échéance, et le contenu des notes liées, dépliable sur place. Voir plus bas.
 - **Mise en forme partout** — les notes *et* les descriptions de tâches acceptent le même formatage que la documentation : gras, italique, souligné, barré, code, liens, couleurs, et autant de lignes qu'on veut.
 - **Liens** — une tâche et une note peuvent être rattachées l'une à l'autre : la note qui détaille la tâche, la référence qui sert à plusieurs tâches. Voir plus bas.
 - **Time blocking** — la page « Planning » est une grille horaire, en vue jour, semaine ou mois : on y pose ses tâches et ses blocs libres sur des créneaux. Voir plus bas.
-- **Vues** — le menu est rangé en sections : *Accueil*, puis **Ma journée** (Aujourd'hui, Planning), **Mes tâches** (Inbox, À faire, Terminées), **Mon nook** (Documentation, Mon espace, Rapport) et **Mes dossiers**. Plus, hors menu : Dossier et Paramètres.
-- **Focus** — sessions type Pomodoro (15 / 25 / 50 min) rattachées à une tâche. Le choix d'ambiance (pluie, café, océan…) est enregistré mais la lecture audio n'est pas encore branchée.
+- **Kanban** — les tâches en trois colonnes (À faire, En cours, Terminé), qu'on traverse en glissant une carte. Voir plus bas.
+- **Archive** — mettre une tâche ou une note de côté sans la supprimer : elle quitte toutes les listes et ne se retrouve plus que dans « Archive ». Voir plus bas.
+- **Vues** — le menu est rangé en sections : *Accueil*, puis **Ma journée** (Aujourd'hui, Planning), **Mes tâches** (Inbox, À faire, Kanban, Terminées, Archive), **Mon nook** (Documentation, Mon espace, Vision board, Rapport) et **Mes dossiers**. Plus, hors menu : Dossier et Paramètres.
+- **Focus** — sessions type Pomodoro (15 / 25 / 50 min) rattachées à une tâche.
 - **Mon espace** — un jardin qui pousse : chaque action gagne de l'XP et débloque, sur 10 niveaux, de nouveaux éléments de la scène. Les déblocages sont définitifs, le jardin ne régresse jamais.
 - **Thèmes** — 5 ambiances (Lavender, Soft Pink, Gothic, Pixel, Garden), couleur d'accent personnalisée, intensité visuelle, et un fond d'écran : soit une image, soit une couleur unie avec un motif. Voir plus bas.
 - **Documentation** — une arborescence de pages pour la doc technique : titres, paragraphes, blocs de code, listes, citations et encadrés, mise en forme du texte (gras, italique, souligné, barré, code, liens, couleur), police au choix par page, vidéos YouTube épinglées à la page avec reprise de lecture, sommaire automatique, liens entre pages et export Markdown.
+- **Vision board** — des canvas libres où poser images, notes, couleurs, sections et cartes vers tes tâches. Voir plus bas.
 - **Rapport** — export CSV ou HTML imprimable, filtré par période et par statut.
 
 ## Structure
@@ -52,6 +57,7 @@ Une fois inscrit, un trigger Postgres provisionne automatiquement un premier noo
 - `src/store/useStore.ts` — dossiers, items et liens entre items, rechargés à chaque changement de nook
 - `src/store/useDocs.ts` — pages de documentation, chargées à la première ouverture de la section
 - `src/store/useTimeBlocks.ts` — créneaux du planning, chargés par semaine autour du jour regardé
+- `src/store/useVisionBoards.ts` — vision boards et leurs éléments, chargés board par board à la première ouverture
 - `src/utils/planning.ts` — le rapprochement prévu/réalisé, partagé par le bilan du jour et le rapport
 - `src/components` — composants par domaine (dossiers, tâches, notes, docs, jardin, UI commune)
 - `src/views` — pages, dont `views/auth` (connexion, inscription, mot de passe oublié / réinitialisé)
@@ -167,6 +173,8 @@ Sous les notes rapides, dans la colonne de droite de l'accueil, une liste de cas
 Ce ne sont **pas des tâches Nook** : ni dossier, ni échéance, ni importance, et rien qui remonte dans l'Inbox, « À faire », le Planning ou le Rapport. C'est ce qui lui permet de cohabiter avec l'Inbox, affichée juste à gauche sur la même page : l'une est le système de tâches, l'autre le coin de la feuille où l'on griffonne.
 
 Une ligne cochée ne disparaît pas : elle descend sous les autres, rayée, et « Nettoyer (n) » retire toutes les cochées d'un coup. Décocher reste possible jusque-là — le but est de voir ce qui reste, pas d'effacer ce qui vient d'être fait.
+
+Elle, « Notes rapides » et « Aujourd'hui » — les trois panneaux de la colonne — se **replient sur leur seule ligne de titre** : un clic sur le titre, et le panneau se réduit à sa bande, pastille comprise — c'est elle qui dit encore ce qu'il y a dessous. L'état est retenu **par navigateur** (`localStorage`, `usePanels.ts`), comme le repli du menu et de l'arborescence de la doc et pour la même raison : on replie parce que l'écran est étroit ici et maintenant, pas parce qu'on veut le même accueil sur toutes ses machines.
 
 ### Notes d'implémentation
 
@@ -286,6 +294,8 @@ Une tâche et sa note se rattachent l'une à l'autre. Le lien n'a pas de sens de
 
 Le geste le plus direct est le **glisser-déposer** : attrape une note, dépose-la sur une tâche, et les voilà liées. La cible s'éclaire au survol, et seulement si le dépôt changerait quelque chose — une paire déjà liée ne s'allume pas. Ça marche dans les deux sens, puisque le lien n'en a pas : une tâche se dépose aussi bien sur une note.
 
+C'est **la cible qui décide** de ce que le dépôt veut dire : le même élément lâché sur un dossier — sa carte sur l'accueil, ou sa ligne dans le menu de gauche, qui est là sur toutes les pages — y est rangé au lieu d'être lié. Deux poignées sur chaque ligne de tâche — une pour lier, une pour ranger — auraient demandé de choisir avant de savoir où on va. Conséquence technique : le glisser annonce `effectAllowed = 'all'` et non `'link'`, sans quoi le dossier ne pourrait pas annoncer `move` en retour et le dépôt n'aurait pas lieu.
+
 La section **Liens** du formulaire (« + Nouveau », ou « Modifier » dans le menu ⋯ d'une ligne) porte les deux autres gestes :
 
 - **« Note liée »** crée une note à la volée et la rattache. Elle atterrit dans le dossier de la tâche. Le champ garde le focus : une tâche a souvent plusieurs notes à poser.
@@ -297,13 +307,89 @@ Une fois liés, les deux portent une pastille 🔗 avec le nombre de liens ; l'i
 
 Les liens vivent dans la table `item_links` (migration `0007`). Une paire n'y est rangée qu'une fois, dans l'ordre de ses identifiants : le doublon inverse est impossible plutôt que simplement interdit. Supprimer un item efface ses liens en cascade.
 
+## Kanban
+
+La page **Kanban** (`/kanban`) range les tâches du nook en trois colonnes — **À faire**, **En cours**, **Terminé** — et on les fait passer de l'une à l'autre en les glissant. Contrairement à « À faire », qui ne montre que ce qui reste ouvert, les trois colonnes tiennent dans le même écran : c'est une vue d'avancement, pas une liste de travail.
+
+C'est le seul endroit où « En cours » se voit. L'état existe en base depuis la première migration (`status in ('todo', 'in_progress', 'done')`), mais aucune autre vue ne le distingue de « À faire » : ailleurs, une tâche est ouverte ou faite. Le Kanban est la vue qui rend ce troisième état manipulable.
+
+Seules les **tâches** y figurent — une note n'a pas d'avancement — et pas les archivées.
+
+Chaque colonne trie comme le reste de l'app : importance haute d'abord, puis l'échéance la plus proche, sans échéance en dernier. Une carte porte son importance, son dossier et son échéance (rose si elle est passée, lavande si c'est aujourd'hui) ; son menu ⋯ est celui des lignes de tâche — modifier, déplacer vers un dossier, archiver, supprimer. Cliquer la carte ouvre le panneau de détail.
+
+Sous « À faire » et « En cours », le champ d'ajout rapide crée une tâche directement dans cet état. « Terminé » n'en a pas : on ne crée pas une tâche déjà faite.
+
+### Notes d'implémentation
+
+- **Le passage par « Terminé » ne s'écrit jamais à la main.** Y entrer comme en sortir passe par `toggleTaskDone`, le même chemin que la case à cocher d'une ligne : lui seul donne l'XP du jardin, et seulement à l'entrée — le jardin ne régresse pas. Conséquence assumée : tirer une carte de « Terminé » vers « En cours » la repasse d'abord en `todo`, puis en `in_progress`. Deux écritures pour un geste, contre un chemin par lequel une tâche deviendrait faite sans que le jardin le sache.
+- Le glisser est le **glisser-déposer natif**, pas les événements pointeur du planning : une colonne est une cible, pas une surface où la position exacte compte.
+- Une colonne s'éclaire au survol **même quand la carte en vient** : le retour visuel doit rester le même partout, y compris pour reposer une carte là où elle était.
+
+## Archive
+
+Le menu ⋯ d'une tâche ou d'une note propose **Archiver**. L'élément quitte alors l'Inbox, son dossier, « À faire », « Terminées », le Kanban et la recherche, et ne se retrouve plus que dans **Archive** (`/archive`) — les tâches, puis les notes, la mise de côté la plus récente en tête. Le même menu propose **Désarchiver** : l'élément retrouve exactement sa place, rien n'a bougé pendant ce temps.
+
+C'est la troisième voie entre garder et supprimer, celle du trimestre qui est fini : la liste s'allège sans que rien ne se perde.
+
+**Archiver n'est pas terminer.** Une tâche en cours archivée reste en cours, une tâche faite reste faite : `archived_at` (migration `0013`) est une colonne à part de `status`, parce que mettre de côté n'est pas un état d'avancement. Et c'est une date plutôt qu'un booléen, pour la même raison que `completed_at` : « Archive » se trie par mise de côté, ce qu'un booléen ne permettrait pas.
+
+### Notes d'implémentation
+
+- Le store expose deux listes : `activeItems` — tout sauf l'archivé, sur quoi sont bâties toutes les vues de travail et la recherche — et `archivedItems`. Un item archivé reste dans `state.items` et continue donc d'être résolu par `getItem` : un créneau de planning ou un lien qui le vise affiche toujours son titre plutôt qu'un trou. Seules les *listes* filtrent.
+- Le chargement d'un nook ramène ses items **archivés compris**, en une requête, et le tri se fait en mémoire. À l'échelle d'un nook personnel, une seconde requête pour la page Archive coûterait plus que les quelques lignes qu'elle éviterait de transporter ; l'index partiel de la migration `0013` (`where archived_at is not null`) attend le jour où cette lecture se fera à part.
+
+## Vision board
+
+Un **canvas libre** (`/vision-board`), autant qu'on en veut par nook, où l'on pose des images, des notes, des aplats de couleur, des cartes vers ses tâches, et des sections pour regrouper tout ça. C'est la page où une idée se range visuellement plutôt qu'en liste.
+
+Les boards se choisissent en **onglets**, au-dessus du canvas : « Nouveau board » en crée un, un double-clic sur un onglet le renomme, la croix le supprime — avec confirmation, puisque ça emporte tous ses éléments.
+
+Cinq natures d'éléments, depuis la barre au-dessus du canvas :
+
+- **Image** — un fichier (JPEG, PNG, WebP ou AVIF, 5 Mo après compression), ou un lien collé : l'adresse directe d'une image, ou un lien de pin Pinterest. Voir plus bas.
+- **Note** — un texte libre, avec la mise en forme de la documentation (`**gras**`, `{blue|texte}`…), sur un fond de post-it.
+- **Section** — une zone en pointillés, titrée, avec un fond teinté facultatif. Elle ne contient rien au sens des données : elle se pose derrière, et c'est le regard qui fait le regroupement.
+- **Couleur** — une pastille dans une des six teintes de l'app, pour une palette ou juste un aplat.
+- **Carte** — un renvoi vers une tâche ou une note du nook, cherchée par son titre. Sa flèche ouvre le panneau de détail, sans quitter le board.
+
+La rangée « Afficher » masque une nature d'un clic — regarder les images sans les cartes, par exemple. C'est un filtre d'affichage : rien ne s'écrit, rien ne se perd.
+
+Sur le canvas, le corps d'un élément le **déplace**, ses quatre bords et ses quatre coins le **redimensionnent**, et le toucher le passe au premier plan — sauf une section, qui reste en fond. Ses boutons — ouvrir, couleur, modifier, supprimer — n'apparaissent qu'au survol, en haut à droite.
+
+### Notes d'implémentation
+
+- **Position et taille sont en pourcentages**, pas en pixels, et le canvas garde un ratio fixe de 16/10 (`utils/visionBoard.ts`, seule source de vérité, partagée par le rendu et par le calcul de taille d'une image). Un board affiché sur un écran étroit est donc le même board, en plus petit — il n'y a aucune coordonnée à reprendre.
+- Les cinq natures partagent **une seule table** (`vision_board_items`, migrations `0011` et `0012`), comme `time_blocks` partage tâche liée et bloc libre : les gestes — déplacer, redimensionner, empiler — les traitent tous pareil, et cinq tables auraient demandé cinq policies pour la même chose. La colonne `kind` est vérifiée par contrainte, et trois contraintes de plus imposent le minimum vital par nature : une image a une URL, une pastille a une couleur, une carte a un titre.
+- **Une carte-lien survit à sa cible.** `item_id` est en `on delete set null` et `item_title` garde le titre copié au moment où la carte a été posée — même principe que `time_blocks`. La carte affiche alors ce titre gardé, en grisé, suivi de « Supprimé du nook » : un board raconte ce qu'on y a mis, il n'est pas réécrit après coup.
+- **`z_index` ne fait que monter** : passer un élément au premier plan lui donne le maximum des autres plus un, jamais une rotation des valeurs — quelques allers-retours suffiraient à remettre deux éléments à égalité. Une section fait exception : créée à `z_index: 0`, elle n'est pas remontée au clic, sans quoi la déplacer la ferait passer devant les images qu'elle est censée regrouper.
+- Déplacer et redimensionner passent par les **événements pointeur**, comme le planning, et c'est l'élément lui-même qui porte la position du geste (`effectiveItems`) — rien n'est écrit tant que le pointeur n'est pas relâché.
+- Le corps d'une carte est **sa seule poignée de déplacement** : aucune action ne vit dessus en clic direct, elles passent toutes par de petits boutons qui arrêtent leur propre propagation. Il n'y a donc jamais à distinguer un clic d'un glisser.
+- Une image est **ramenée à 1920 px de côté au plus** avant l'envoi, puis affichée en `object-contain`, jamais `object-cover` : une image d'inspiration est souvent en portrait, et la recadrer pour remplir sa carte en couperait le haut. Sa carte est d'ailleurs posée **au format de l'image** plutôt qu'à une taille par défaut, à aire constante — ce qui demande de convertir son ratio en pixels en un ratio largeur % / hauteur %, d'où `CANVAS_ASPECT`.
+- Le menu de couleur d'une section est **téléporté** et positionné en fixe, comme celui d'un créneau de planning : la carte rogne ce qui la dépasse, un menu posé dedans serait coupé net sur une petite section.
+- Le chargement est **à la demande** : la liste des boards à l'ouverture de la page, les éléments d'un board à sa première consultation, puis gardés en mémoire. Changer d'onglet et revenir ne recharge rien.
+- Le ménage du bucket est **best-effort et jamais bloquant**, comme pour les fonds d'écran : la cascade SQL emporte les lignes, elle ne connaît pas les fichiers. Supprimer un élément attend la confirmation de la base avant d'effacer son image — l'effacer avant laisserait un élément restauré sans image ; supprimer un board efface ensuite les images de ses éléments une à une.
+
+### Images depuis Pinterest
+
+Le champ « Image » accepte trois choses : un fichier, l'adresse directe d'une image, ou le lien d'un pin Pinterest.
+
+Les deux premières se règlent dans le navigateur (`fetch` en CORS, ce que la plupart des CDN d'images autorisent). La troisième ne le peut pas : ni la page d'un pin ni son image sur `pinimg.com` ne renvoient les en-têtes qui permettraient de la lire depuis un navigateur. C'est la fonction Edge `extract-pin-image` qui s'en charge côté serveur et renvoie l'image en base64 ; le client n'a plus qu'à la poser dans le bucket. `services/pinExtract.ts` aiguille sur l'hôte du lien — Pinterest passe par la fonction, tout le reste par le navigateur.
+
+La fonction n'accepte **que les domaines Pinterest**, et **que les appels authentifiés**, tous deux vérifiés chez elle : sans ces deux bornes, ce serait un proxy ouvert capable de faire requêter n'importe quelle URL par le serveur (SSRF).
+
+Sans elle, rien n'est cassé : coller un lien de pin affiche un message d'erreur clair, et le reste de la page continue de fonctionner.
+
 ## Données et sécurité
 
 Chaque table a RLS activé : une ligne n'est visible et modifiable que par son propriétaire. Les policies d'`items`, `focus_sessions`, `doc_pages`, `item_links` et `time_blocks` vérifient en plus que le dossier, l'item ou la page parente référencée appartient au même utilisateur — pour un lien, les deux items qu'il désigne — **et au même nook**. C'est cette dernière condition qui empêche une tâche du nook pro d'atterrir dans un dossier du nook perso, même si le client s'y trompait.
 
-Le filtrage par nook côté client est un cadrage, pas une sécurité : c'est le RLS qui fait autorité, et il vérifie que le nook désigné appartient bien au compte (`owns_nook`). Le bucket `backgrounds` est public en lecture (les URLs sont des UUID) mais chaque utilisateur ne peut écrire que dans son propre dossier `<user_id>/`.
+Le filtrage par nook côté client est un cadrage, pas une sécurité : c'est le RLS qui fait autorité, et il vérifie que le nook désigné appartient bien au compte (`owns_nook`). Les buckets `backgrounds` et `vision-boards` sont publics en lecture (les URLs sont des UUID) mais chaque utilisateur ne peut écrire que dans son propre dossier `<user_id>/`.
 
 La clé anon est publique et protégée par RLS — elle peut vivre dans le client. Ne mets jamais la clé `service_role` ni le mot de passe de la base dans `.env`.
+
+Le `Caddyfile` pose une CSP et les en-têtes de sécurité usuels (HSTS, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) sur toute réponse. La CSP est nommément restreinte aux domaines que l'app appelle réellement (Supabase, Google Fonts, YouTube, Spotify) — ajouter un nouveau tiers, ou passer le projet Supabase sur un domaine personnalisé, demande d'élargir cette liste dans le `Caddyfile`.
+
+**Supprimer son compte** (Paramètres → Zone dangereuse) efface tout — tous les nooks, sans exception — après avoir tapé un mot de confirmation. Ça passe par la fonction Edge `delete-account` (voir plus haut) : la cascade Postgres depuis `auth.users` s'occupe des lignes, la fonction s'occupe en plus des fichiers dans les buckets `backgrounds` et `vision-boards`, que la cascade ne touche pas.
 
 ## Déployer
 
@@ -320,3 +406,21 @@ Vite inline les variables `VITE_*` au moment du build : elles doivent être déf
 ## Spotify (optionnel)
 
 Le widget Spotify utilise le flow OAuth **Authorization Code + PKCE** — aucun secret côté client. Pour qu'il fonctionne pour tous les visiteurs d'un déploiement sans configuration de leur part, définis `VITE_SPOTIFY_CLIENT_ID` (voir `.env.example`). Sans cette variable, chaque navigateur peut configurer son propre Client ID depuis Paramètres → Spotify (pratique en local).
+
+## Tests
+
+```bash
+npm test          # une passe, comme en CI
+npm run test:watch  # en continu pendant le développement
+```
+
+Vitest couvre aujourd'hui les fonctions pures les plus centrales — le moteur de formatage riche (`utils/docs.ts`, partagé par la documentation et les descriptions de tâches/notes), le rapprochement prévu/réalisé du planning (`utils/planning.ts`), les conversions de durée (`utils/time.ts`) et le service de suppression de compte (`services/account.ts`). C'est un point de départ, pas une couverture exhaustive : la logique RLS (policies Postgres, cascade de suppression de compte) n'est testée qu'à la main pour l'instant — un test d'intégration contre un vrai projet Supabase de test serait la suite logique.
+
+Une GitHub Action (`.github/workflows/ci.yml`) fait tourner le typecheck, le build et cette suite sur chaque push et chaque pull request vers `main`.
+
+## Sauvegardes
+
+Nook ne fait tourner aucune sauvegarde lui-même — la donnée vit entièrement chez Supabase, et c'est là que la stratégie de sauvegarde se choisit :
+
+- Les projets Supabase **payants** (Pro et au-dessus) incluent des sauvegardes quotidiennes automatiques, et le **Point-in-Time Recovery** en option pour restaurer à n'importe quelle minute des derniers jours.
+- Sur le plan **gratuit**, il n'y a pas de sauvegarde automatique : une suppression accidentelle (ou un bug dans une migration) est définitive. Un export manuel régulier (`pg_dump "$SUPABASE_DB_URL" -f backup.sql`, URL de connexion dans dashboard → Settings → Database) reste possible, à faire tourner et stocker toi-même.

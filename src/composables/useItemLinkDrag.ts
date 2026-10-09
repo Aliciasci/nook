@@ -4,7 +4,12 @@ import { useStore } from '@/store/useStore'
 import { useToast } from '@/composables/useToast'
 
 /**
- * Lier deux éléments en déposant l'un sur l'autre.
+ * Attraper une tâche ou une note et la déposer quelque part.
+ *
+ * Deux destinations, un seul geste : sur un autre élément, les deux sont
+ * **liés** ; sur une carte de dossier, l'élément y est **rangé**. C'est la
+ * cible qui décide, pas la façon d'attraper — sans quoi il faudrait deux
+ * poignées sur chaque ligne de tâche.
  *
  * Le lien n'a pas de sens de lecture — une note sur une tâche ou une tâche sur
  * une note, c'est le même lien — donc le geste marche dans les deux sens.
@@ -31,7 +36,10 @@ export function useItemLinkDrag() {
     if (!e.dataTransfer) return
     e.dataTransfer.setData(ITEM_MIME, item.id)
     e.dataTransfer.setData('text/plain', item.id)
-    e.dataTransfer.effectAllowed = 'link'
+    // `all` et pas `link` : une cible ne peut annoncer un `dropEffect` que
+    // parmi ce que la source autorise, et un dossier annonce `move`. Avec
+    // `link`, le dépôt sur un dossier n'aurait tout simplement pas lieu.
+    e.dataTransfer.effectAllowed = 'all'
   }
 
   function end() {
@@ -61,5 +69,35 @@ export function useItemLinkDrag() {
     return true
   }
 
-  return { isDragging, dragged: computed(() => dragged.value), start, end, accepts, drop }
+  /**
+   * Ce dossier peut-il recevoir ce qui est glissé ? Non s'il s'y trouve déjà —
+   * même règle que pour un lien : une cible qui s'éclaire doit promettre que
+   * le dépôt change quelque chose.
+   */
+  function acceptsFolder(folderId: string): boolean {
+    const source = dragged.value
+    return source !== null && source.folderId !== folderId
+  }
+
+  /** Range l'élément dans ce dossier. Renvoie `false` s'il y était déjà. */
+  function dropOnFolder(folderId: string, folderName: string): boolean {
+    const source = dragged.value
+    dragged.value = null
+    if (!source || source.folderId === folderId) return false
+
+    store.moveItemToFolder(source.id, folderId)
+    toast.push(`« ${source.title} » est maintenant dans « ${folderName} ».`)
+    return true
+  }
+
+  return {
+    isDragging,
+    dragged: computed(() => dragged.value),
+    start,
+    end,
+    accepts,
+    drop,
+    acceptsFolder,
+    dropOnFolder,
+  }
 }

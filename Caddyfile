@@ -1,7 +1,25 @@
+# Security headers common to every response. CSP is scoped to the third
+# parties the app actually calls: Supabase (auth/data/storage), Google Fonts,
+# the YouTube iframe + oEmbed + thumbnails (doc page videos), the Spotify
+# Web API + OAuth token endpoint (PKCE, no redirect iframe).
+# Widening the Supabase project to a custom domain, or adding a new third
+# party, means widening this list too — it doesn't update itself.
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://i.ytimg.com; connect-src 'self' https://*.supabase.co https://www.youtube.com https://accounts.spotify.com https://api.spotify.com; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+	}
+}
+
 # Static SPA served by Caddy on Railway's $PORT.
 :{$PORT:80} {
 	root * /srv
 	encode gzip zstd
+	import security_headers
 
 	# Hashed filenames are content-addressed, so they can be cached forever.
 	# Served on their own so a missing chunk 404s instead of falling through

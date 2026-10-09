@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # `vue-tsc -b` (typecheck) then `vite build`. No Supabase env vars are
+      # needed — the client falls back to a placeholder URL/key when unset
+      # (see src/lib/supabase.ts), so the build never depends on secrets.
+      - run: npm run build
+
+      - run: npm test

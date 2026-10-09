@@ -13,11 +13,13 @@ import DayProgressPanel from '@/components/dayprogress/DayProgressPanel.vue'
 import SpotifyWidget from '@/components/spotify/SpotifyWidget.vue'
 import FocusMode from '@/components/focus/FocusMode.vue'
 import IconClock from '@/icons/IconClock.vue'
+import IconMenu from '@/icons/IconMenu.vue'
 import { useUiState } from '@/composables/useUiState'
 import { useDayPanel } from '@/composables/useDayPanel'
 import { useFocusSession } from '@/composables/useFocusSession'
 import { useSpotify } from '@/composables/useSpotify'
 import { useGarden } from '@/composables/useGarden'
+import { usePanels } from '@/composables/usePanels'
 import { clearAllSelections } from '@/composables/useSelection'
 import { useStore } from '@/store/useStore'
 
@@ -26,6 +28,7 @@ const dayPanel = useDayPanel()
 const focus = useFocusSession()
 const spotify = useSpotify()
 const garden = useGarden()
+const panels = usePanels()
 const store = useStore()
 const route = useRoute()
 
@@ -59,6 +62,19 @@ onBeforeUnmount(() => {
 <template>
   <div class="app-shell flex h-screen bg-paper">
     <Sidebar />
+
+    <!-- Ouvre le tiroir du menu principal sous `md` — au-dessus, la Sidebar
+         est une colonne et n'a pas besoin qu'on l'appelle. -->
+    <button
+      type="button"
+      title="Afficher le menu"
+      aria-label="Afficher le menu"
+      class="fixed left-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-xl bg-white text-ink-soft shadow-soft ring-1 ring-ink/[0.08] transition-colors hover:text-ink md:hidden cursor-pointer"
+      @click="panels.openMobileSidebar()"
+    >
+      <IconMenu class="h-[18px] w-[18px]" />
+    </button>
+
     <main class="min-w-0 flex-1 overflow-y-auto">
       <AppSkeleton v-if="store.isLoading.value && !store.loaded.value" />
       <RouterView v-else v-slot="{ Component, route }">

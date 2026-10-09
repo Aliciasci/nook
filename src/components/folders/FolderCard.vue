@@ -5,6 +5,8 @@ import type { Folder } from '@/types'
 import { useStore } from '@/store/useStore'
 import { useUiState } from '@/composables/useUiState'
 import { useFolderColor } from '@/composables/useFolderColor'
+import { useHiddenFolders } from '@/composables/useHiddenFolders'
+import { useItemLinkDrag } from '@/composables/useItemLinkDrag'
 import IconMoreHorizontal from '@/icons/IconMoreHorizontal.vue'
 import FolderPreview from '@/components/folders/FolderPreview.vue'
 
@@ -18,12 +20,35 @@ const props = withDefaults(
 )
 
 const { folderStats, removeFolder } = useStore()
+const { hide: hideFolder } = useHiddenFolders()
+const itemDrag = useItemLinkDrag()
 const { openEditFolder } = useUiState()
 const router = useRouter()
 const palette = useFolderColor(props.folder.color)
 
 const menuOpen = ref(false)
 const root = ref<HTMLElement>()
+
+/* ------------------------------------ Recevoir une tâche ou une note --- */
+
+/** La carte est survolée par un élément qu'elle peut ranger. */
+const dropTarget = ref(false)
+
+function onItemDragOver(e: DragEvent) {
+  if (!itemDrag.acceptsFolder(props.folder.id)) return
+  // Sans ça, le navigateur refuse le dépôt : c'est le `preventDefault` du
+  // survol qui déclare la cible, pas celui du dépôt.
+  e.preventDefault()
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
+  // L'aperçu s'ouvrirait sous le pointeur, juste là où on vise.
+  closePreview()
+  dropTarget.value = true
+}
+
+function onItemDrop() {
+  dropTarget.value = false
+  itemDrag.dropOnFolder(props.folder.id, props.folder.name)
+}
 
 // Hover preview. The delay keeps the panel from flashing while the pointer
 // merely crosses the grid on its way somewhere else.
@@ -71,6 +96,13 @@ function edit() {
   openEditFolder(props.folder.id)
 }
 
+/** Retire la carte de la grille — le dossier, lui, ne bouge pas. */
+function hide() {
+  closePreview()
+  menuOpen.value = false
+  hideFolder(props.folder.id)
+}
+
 function confirmDelete() {
   menuOpen.value = false
   removeFolder(props.folder.id)
@@ -88,6 +120,9 @@ const stats = () => folderStats(props.folder.id)
     @mouseleave="closePreview"
     @focusin="openPreview"
     @focusout="closePreview"
+    @dragover="onItemDragOver"
+    @dragleave="dropTarget = false"
+    @drop.prevent.stop="onItemDrop"
   >
     <div
       class="absolute -top-2 left-6 h-5 w-20 rounded-t-xl transition-transform duration-200 group-hover:-translate-y-0.5"
@@ -95,8 +130,8 @@ const stats = () => folderStats(props.folder.id)
     />
 
     <div
-      class="relative flex h-full flex-col justify-between rounded-2xl p-5 shadow-folder ring-1 ring-black/[0.02] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-soft-lg"
-      :class="palette.bg"
+      class="relative flex h-full flex-col justify-between rounded-2xl p-5 shadow-folder transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-soft-lg"
+      :class="[palette.bg, dropTarget ? 'ring-2 ring-lavender-400 shadow-soft-lg -translate-y-1' : 'ring-1 ring-black/[0.02]']"
     >
       <div class="flex items-start justify-between">
         <span class="text-[26px] leading-none">{{ folder.icon }}</span>
@@ -129,6 +164,13 @@ const stats = () => folderStats(props.folder.id)
               @click="edit"
             >
               Modifier
+            </button>
+            <button
+              type="button"
+              class="w-full rounded-xl px-3 py-2 text-left text-[13px] font-medium text-ink-soft hover:bg-lavender-50 cursor-pointer"
+              @click="hide"
+            >
+              Masquer
             </button>
             <button
               type="button"

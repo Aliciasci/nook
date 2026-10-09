@@ -4,23 +4,21 @@ import { TODO_MAX_LENGTH } from '@/composables/usePreferencesStore'
 import Checkbox from '@/components/common/Checkbox.vue'
 import QuickAddField from '@/components/common/QuickAddField.vue'
 import IconX from '@/icons/IconX.vue'
+import CollapsiblePanel from '@/components/common/CollapsiblePanel.vue'
 
 const { entries, openCount, doneCount, ready, add, toggle, remove, clearDone } = useTodoList()
 </script>
 
 <template>
-  <div class="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-ink/[0.08]">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <h2 class="font-display text-[15px] font-medium text-ink">To-do list</h2>
-        <span
-          v-if="openCount"
-          class="rounded-full bg-lavender-100 px-2 py-0.5 text-[11px] font-semibold text-lavender-700"
-        >
-          {{ openCount }}
-        </span>
-      </div>
-    </div>
+  <CollapsiblePanel panel-id="todo" title="To-do list">
+    <template #badge>
+      <span
+        v-if="openCount"
+        class="rounded-full bg-lavender-100 px-2 py-0.5 text-[11px] font-semibold text-lavender-700"
+      >
+        {{ openCount }}
+      </span>
+    </template>
 
     <div class="mt-3">
       <QuickAddField
@@ -71,5 +69,5 @@ const { entries, openCount, doneCount, ready, add, toggle, remove, clearDone } =
         Nettoyer ({{ doneCount }})
       </button>
     </div>
-  </div>
+  </CollapsiblePanel>
 </template>

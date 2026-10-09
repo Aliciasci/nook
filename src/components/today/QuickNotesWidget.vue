@@ -5,6 +5,7 @@ import InlineQuickAdd from '@/components/common/InlineQuickAdd.vue'
 import MoveToFolderMenu from '@/components/common/MoveToFolderMenu.vue'
 import Checkbox from '@/components/common/Checkbox.vue'
 import SelectModeToggle from '@/components/common/SelectModeToggle.vue'
+import CollapsiblePanel from '@/components/common/CollapsiblePanel.vue'
 import IconNote from '@/icons/IconNote.vue'
 
 const { quickNotes } = useStore()
@@ -16,11 +17,18 @@ function onRowClick(id: string) {
 </script>
 
 <template>
-  <div class="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-ink/[0.08]">
-    <div class="flex items-center justify-between">
-      <h2 class="font-display text-[15px] font-medium text-ink">Notes rapides</h2>
+  <CollapsiblePanel panel-id="notes" title="Notes rapides">
+    <template #badge>
+      <span
+        v-if="quickNotes.length"
+        class="rounded-full bg-lavender-100 px-2 py-0.5 text-[11px] font-semibold text-lavender-700"
+      >
+        {{ quickNotes.length }}
+      </span>
+    </template>
+    <template #actions>
       <SelectModeToggle v-if="quickNotes.length" scope="home-notes" />
-    </div>
+    </template>
 
     <div class="mt-3">
       <InlineQuickAdd type="note" placeholder="Écrire une note…" />
@@ -53,5 +61,5 @@ function onRowClick(id: string) {
         />
       </div>
     </div>
-  </div>
+  </CollapsiblePanel>
 </template>
